@@ -1,8 +1,5 @@
-# CedAdventuresCRM
+## License
 
-Copyright (c) 2026 Ced Adventures
+This project is proprietary software. All rights reserved.
 
-All rights reserved.
-
-This software is proprietary.
-Unauthorized copying, distribution, or use is strictly prohibited.
+Public access to this repository does not grant permission to use, copy, modify, distribute, or reuse any part of the software without prior written consent from the copyright holder.
