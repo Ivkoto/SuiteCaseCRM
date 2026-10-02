@@ -2,7 +2,7 @@ import type {
   CreateCustomerRequest,
   CustomerDetails,
   UpdateCustomerRequest,
-} from './api/customer-contracts';
+} from '../api/customer-contracts';
 import { DEFAULT_COUNTRY_CODE, SUPPORTED_COUNTRIES } from './countries';
 
 export type CustomerFormField = keyof CustomerFormValues;
@@ -86,6 +86,19 @@ export function toUpdateCustomerRequest(values: CustomerFormValues): UpdateCusto
     middleNameLatin: optionalTrim(values.middleNameLatin),
     lastNameLatin: optionalTrim(values.lastNameLatin),
   };
+}
+
+export function removeError(
+  errors: CustomerFormErrors,
+  field: CustomerFormField,
+): CustomerFormErrors {
+  if (errors[field] === undefined) {
+    return errors;
+  }
+
+  const nextErrors = { ...errors };
+  delete nextErrors[field];
+  return nextErrors;
 }
 
 export function validateCustomerForm(

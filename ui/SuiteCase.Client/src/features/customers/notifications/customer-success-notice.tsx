@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import './customer-success-notice.css';
 
-const AUTO_DISMISS_DELAY_MS = 15_000;
+const AUTO_DISMISS_DELAY_MS = 30_000;
 
 type CustomerSuccessNoticeProps = Readonly<{
   message: string;

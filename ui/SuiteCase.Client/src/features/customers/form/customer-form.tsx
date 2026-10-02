@@ -1,6 +1,7 @@
-import { useId, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type SubmitEvent } from 'react';
 import { SUPPORTED_COUNTRIES } from './countries';
 import {
+  removeError,
   validateCustomerForm,
   type CustomerFormErrors,
   type CustomerFormField,
@@ -50,8 +51,24 @@ export function CustomerForm({
   const [values, setValues] = useState(initialValues);
   const [clientErrors, setClientErrors] = useState<CustomerFormErrors>({});
   const formRef = useRef<HTMLFormElement>(null);
+  const wasSubmittingRef = useRef(isSubmitting);
   const idPrefix = useId();
   const errors = { ...serverErrors, ...clientErrors };
+  const hasFieldErrors = Object.values(errors).some((message) => message !== undefined);
+
+  useEffect(() => {
+    const submissionFinished = wasSubmittingRef.current && !isSubmitting;
+    wasSubmittingRef.current = isSubmitting;
+
+    if (!submissionFinished) {
+      return;
+    }
+
+    const firstInvalidField = Object.keys(serverErrors)[0] as CustomerFormField | undefined;
+    if (firstInvalidField !== undefined) {
+      focusFormField(formRef.current, firstInvalidField);
+    }
+  }, [isSubmitting, serverErrors]);
 
   function updateField(field: CustomerFormField, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -59,17 +76,14 @@ export function CustomerForm({
     onClearServerError?.(field);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors = validateCustomerForm(values, mode);
     setClientErrors(nextErrors);
 
     const firstInvalidField = Object.keys(nextErrors)[0] as CustomerFormField | undefined;
     if (firstInvalidField !== undefined) {
-      const field = formRef.current?.elements.namedItem(firstInvalidField);
-      if (field instanceof HTMLElement) {
-        field.focus();
-      }
+      focusFormField(formRef.current, firstInvalidField);
       return;
     }
 
@@ -84,7 +98,7 @@ export function CustomerForm({
         </div>
       ) : null}
 
-      {Object.keys(clientErrors).length > 0 ? (
+      {hasFieldErrors ? (
         <div className="customer-form-banner" role="alert">
           Please correct the highlighted fields.
         </div>
@@ -383,23 +397,20 @@ function FieldError({ id, message }: Readonly<{ id?: string; message?: string }>
   );
 }
 
+function focusFormField(
+  form: HTMLFormElement | null,
+  fieldName: CustomerFormField,
+) {
+  const field = form?.elements.namedItem(fieldName);
+  if (field instanceof HTMLElement) {
+    field.focus();
+  }
+}
+
 function errorId(
   idPrefix: string,
   field: CustomerFormField,
   errors: CustomerFormErrors,
 ): string | undefined {
   return errors[field] === undefined ? undefined : `${idPrefix}-${field}-error`;
-}
-
-function removeError(
-  errors: CustomerFormErrors,
-  field: CustomerFormField,
-): CustomerFormErrors {
-  if (errors[field] === undefined) {
-    return errors;
-  }
-
-  const nextErrors = { ...errors };
-  delete nextErrors[field];
-  return nextErrors;
 }

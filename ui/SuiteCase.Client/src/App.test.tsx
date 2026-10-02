@@ -3,11 +3,14 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
+const customersPageMock = vi.hoisted(() => vi.fn())
+
 vi.mock('./features/customers/customers-page', () => ({
-  CustomersPage: () => <div>Customer directory</div>,
+  CustomersPage: () => customersPageMock(),
 }))
 
 beforeEach(() => {
+  customersPageMock.mockReturnValue(<div>Customer directory</div>)
   window.localStorage.clear()
   delete document.documentElement.dataset.theme
 
@@ -61,5 +64,22 @@ describe('App theme', () => {
 
     expect(document.documentElement).toHaveAttribute('data-theme', 'light')
     expect(window.localStorage.getItem('suitecase-theme')).toBe('light')
+  })
+})
+
+describe('App error boundary', () => {
+  it('keeps the sidebar available when the customer content crashes', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    customersPageMock.mockImplementation(() => {
+      throw new Error('Unexpected render failure')
+    })
+
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'Something went wrong' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Reload' })).toBeVisible()
+    await user.click(screen.getByRole('button', { name: 'Collapse navigation' }))
+    expect(screen.getByRole('button', { name: 'Expand navigation' })).toBeEnabled()
   })
 })

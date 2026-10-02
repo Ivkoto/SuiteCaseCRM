@@ -4,6 +4,7 @@ import type { CustomerDetails } from '../api/customer-contracts';
 import { CustomerForm } from '../form/customer-form';
 import {
   createEmptyCustomerForm,
+  removeError,
   toCreateCustomerRequest,
   type CustomerFormErrors,
   type CustomerFormField,
@@ -60,15 +61,7 @@ export function CreateCustomerDialog({ onClose, onCreated }: CreateCustomerDialo
   }
 
   function clearFieldError(field: CustomerFormField) {
-    setFieldErrors((current) => {
-      if (current[field] === undefined) {
-        return current;
-      }
-
-      const next = { ...current };
-      delete next[field];
-      return next;
-    });
+    setFieldErrors((current) => removeError(current, field));
   }
 
   return (

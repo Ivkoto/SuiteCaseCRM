@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
@@ -18,6 +18,8 @@ const FIRST_CUSTOMER: CustomerListItem = {
   age: 36,
   passportExpiresOn: '2030-01-01',
   isPassportValid: true,
+  createdAt: '2026-07-19T09:30:00+03:00',
+  updatedAt: null,
 };
 
 const SECOND_CUSTOMER: CustomerListItem = {
@@ -30,6 +32,8 @@ const SECOND_CUSTOMER: CustomerListItem = {
   age: null,
   passportExpiresOn: null,
   isPassportValid: false,
+  createdAt: '2026-07-20T10:00:00+03:00',
+  updatedAt: null,
 };
 
 const FIRST_CUSTOMER_DETAILS: CustomerDetails = {
@@ -49,6 +53,8 @@ const FIRST_CUSTOMER_DETAILS: CustomerDetails = {
   residenceCountryCode: 'BG',
   residenceCountryName: 'Bulgaria',
   notes: 'Prefers written correspondence.',
+  createdAt: '2026-07-19T09:30:00+03:00',
+  updatedAt: null,
 };
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -87,6 +93,21 @@ describe('CustomersPage', () => {
         signal: expect.any(AbortSignal),
       }),
     );
+  });
+
+  it('shows the updated audit date and falls back to the creation date', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(customerPage([
+      FIRST_CUSTOMER,
+      {
+        ...SECOND_CUSTOMER,
+        updatedAt: '2026-07-21T10:00:00+03:00',
+      },
+    ])));
+
+    render(<CustomersPage />);
+
+    expect(await screen.findByRole('cell', { name: '19 Jul 2026' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '21 Jul 2026' })).toBeInTheDocument();
   });
 
   it('selects individual and all visible customers without refetching', async () => {
@@ -252,6 +273,27 @@ describe('CustomersPage', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it('keeps the directory silent when the request is cancelled', async () => {
+    let rejectRequest: (error: Error) => void = () => {
+      throw new Error('Request rejection handler was not initialized.');
+    };
+    const pendingRequest = new Promise<Response>((_resolve, reject) => {
+      rejectRequest = reject;
+    });
+    fetchMock.mockReturnValueOnce(pendingRequest);
+
+    render(<CustomersPage />);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+
+    await act(async () => {
+      rejectRequest(
+        Object.assign(new Error('The operation was aborted.'), { name: 'AbortError' }),
+      );
+    });
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('offers retry after a directory request fails', async () => {
     const user = userEvent.setup();
     fetchMock
@@ -301,12 +343,164 @@ describe('CustomersPage', () => {
     await user.type(nationalId, 'ZX00000001');
     await user.click(screen.getByRole('button', { name: 'Create customer' }));
 
-    expect(await screen.findByText(
+    const duplicateError = await screen.findByText(
       'Another active customer already uses this National ID. Existing customer #77.',
-    )).toBeInTheDocument();
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Please correct the highlighted fields.',
+    );
+    await waitFor(() => expect(nationalId).toHaveFocus());
+    expect(nationalId).toHaveAttribute('aria-invalid', 'true');
+    expect(nationalId).toHaveAccessibleDescription(duplicateError.textContent ?? '');
     expect(nationalId).toHaveValue('ZX00000001');
     expect(screen.getByRole('dialog', { name: 'Add new customer' })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the create form open after a failed create request', async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(customerPage([])))
+      .mockResolvedValueOnce(jsonResponse({ title: 'Server error' }, 500));
+
+    render(<CustomersPage />);
+
+    await screen.findByText('No customers yet');
+    await user.click(screen.getByRole('button', { name: 'Add New Customer' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Add new customer' });
+    const firstName = within(dialog).getByRole('textbox', { name: /First name/ });
+    const lastName = within(dialog).getByRole('textbox', { name: /Last name/ });
+    await user.type(firstName, 'Test');
+    await user.type(lastName, 'Customer');
+    await user.click(within(dialog).getByRole('button', { name: 'Create customer' }));
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'The request could not be completed. Try again.',
+    );
+    expect(firstName).toHaveValue('Test');
+    expect(lastName).toHaveValue('Customer');
+    expect(within(dialog).getByRole('button', { name: 'Create customer' })).toBeEnabled();
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
+  });
+
+  it('warns to check the directory when a successful create response cannot be validated', async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(customerPage([])))
+      .mockResolvedValueOnce(jsonResponse({ id: 43, firstName: 'Test', lastName: 'Customer' }, 201));
+
+    render(<CustomersPage />);
+
+    await screen.findByText('No customers yet');
+    await user.click(screen.getByRole('button', { name: 'Add New Customer' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Add new customer' });
+    const firstName = within(dialog).getByRole('textbox', { name: /First name/ });
+    const lastName = within(dialog).getByRole('textbox', { name: /Last name/ });
+    await user.type(firstName, 'Test');
+    await user.type(lastName, 'Customer');
+    await user.click(within(dialog).getByRole('button', { name: 'Create customer' }));
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'The server returned an unexpected response, so the result could not be confirmed. '
+      + 'The change may already have been saved. Check the customer directory before submitting again.',
+    );
+    expect(firstName).toHaveValue('Test');
+    expect(lastName).toHaveValue('Customer');
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
+  });
+
+  it('warns to check the directory when a create request fails before a response arrives', async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(customerPage([])))
+      .mockRejectedValueOnce(new TypeError('Network unavailable'));
+
+    render(<CustomersPage />);
+
+    await screen.findByText('No customers yet');
+    await user.click(screen.getByRole('button', { name: 'Add New Customer' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Add new customer' });
+    const firstName = within(dialog).getByRole('textbox', { name: /First name/ });
+    const lastName = within(dialog).getByRole('textbox', { name: /Last name/ });
+    await user.type(firstName, 'Test');
+    await user.type(lastName, 'Customer');
+    await user.click(within(dialog).getByRole('button', { name: 'Create customer' }));
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'The request could not be completed, so the result could not be confirmed. '
+      + 'The change may already have been saved. Check the customer directory before submitting again.',
+    );
+    expect(firstName).toHaveValue('Test');
+    expect(lastName).toHaveValue('Customer');
+    expect(within(dialog).getByRole('button', { name: 'Create customer' })).toBeEnabled();
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
+  });
+
+  it('keeps edit mode and its input after a failed update request', async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(customerPage([FIRST_CUSTOMER])))
+      .mockResolvedValueOnce(jsonResponse(FIRST_CUSTOMER_DETAILS))
+      .mockResolvedValueOnce(jsonResponse({ title: 'Server error' }, 500));
+
+    render(<CustomersPage />);
+
+    await user.click(await screen.findByRole('button', {
+      name: 'View details for Ada Lovelace',
+    }));
+    const dialog = await screen.findByRole('dialog', { name: 'Ada Lovelace' });
+    await user.click(within(dialog).getByRole('button', { name: 'Edit profile' }));
+    const email = within(dialog).getByRole('textbox', { name: 'Email' });
+    await user.clear(email);
+    await user.type(email, 'failed-update@example.test');
+    await user.click(within(dialog).getByRole('button', { name: 'Save changes' }));
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'The request could not be completed. Try again.',
+    );
+    expect(within(dialog).getByRole('heading', {
+      name: 'Update customer information',
+    })).toBeVisible();
+    expect(email).toHaveValue('failed-update@example.test');
+    expect(within(dialog).getByRole('button', { name: 'Save changes' })).toBeEnabled();
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'PUT')).toHaveLength(1);
+  });
+
+  it('keeps the customer and confirmation open after a failed delete request', async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(customerPage([FIRST_CUSTOMER])))
+      .mockResolvedValueOnce(jsonResponse(FIRST_CUSTOMER_DETAILS))
+      .mockResolvedValueOnce(jsonResponse({ title: 'Server error' }, 500));
+
+    render(<CustomersPage />);
+
+    await user.click(await screen.findByRole('button', {
+      name: 'View details for Ada Lovelace',
+    }));
+    const dialog = await screen.findByRole('dialog', { name: 'Ada Lovelace' });
+    await user.click(within(dialog).getByRole('button', { name: 'Delete customer' }));
+    const deleteHeading = within(dialog).getByRole('heading', {
+      name: 'Delete this customer?',
+    });
+    const confirmation = deleteHeading.closest('section');
+    if (confirmation === null) {
+      throw new Error('Delete confirmation section was not rendered.');
+    }
+    const confirmDelete = within(confirmation).getByRole('button', {
+      name: 'Delete customer',
+    });
+    await user.click(confirmDelete);
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'The request could not be completed. Try again.',
+    );
+    expect(confirmDelete).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'View details for Ada Lovelace' })).toBeVisible();
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'DELETE')).toHaveLength(1);
   });
 
   it('loads details, sends a full replacement edit, and refetches after soft delete', async () => {
@@ -402,6 +596,117 @@ describe('CustomersPage', () => {
     const deleteCall = fetchMock.mock.calls.find(([, options]) => options?.method === 'DELETE');
     expect(deleteCall?.[0]).toBe('/api/customers/41');
     expect(fetchMock.mock.calls[5]?.[0]).toBe('/api/customers?page=1&pageSize=13');
+  });
+
+  it('prevents editing while a customer deletion is pending', async () => {
+    const user = userEvent.setup();
+    let resolveDelete: (response: Response) => void = () => {
+      throw new Error('Delete response resolver was not initialized.');
+    };
+    const pendingDeleteResponse = new Promise<Response>((resolve) => {
+      resolveDelete = resolve;
+    });
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(customerPage([FIRST_CUSTOMER])))
+      .mockResolvedValueOnce(jsonResponse(FIRST_CUSTOMER_DETAILS))
+      .mockReturnValueOnce(pendingDeleteResponse)
+      .mockResolvedValueOnce(jsonResponse(customerPage([])));
+
+    render(<CustomersPage />);
+
+    await user.click(await screen.findByRole('button', {
+      name: 'View details for Ada Lovelace',
+    }));
+
+    const detailsDialog = await screen.findByRole('dialog', { name: 'Ada Lovelace' });
+    const editButton = within(detailsDialog).getByRole('button', { name: 'Edit profile' });
+    const deleteButton = within(detailsDialog).getByRole('button', { name: 'Delete customer' });
+    await user.click(deleteButton);
+
+    const deleteConfirmationHeading = within(detailsDialog).getByRole('heading', {
+      name: 'Delete this customer?',
+    });
+    const deleteConfirmation = deleteConfirmationHeading.closest('section');
+    if (deleteConfirmation === null) {
+      throw new Error('Delete confirmation section was not rendered.');
+    }
+
+    const confirmDeleteButton = within(deleteConfirmation).getByRole('button', {
+      name: 'Delete customer',
+    });
+    const cancelDeleteButton = within(deleteConfirmation).getByRole('button', {
+      name: 'Cancel',
+    });
+    await user.click(confirmDeleteButton);
+
+    expect(editButton).toBeDisabled();
+    expect(deleteButton).toBeDisabled();
+    expect(confirmDeleteButton).toBeDisabled();
+    expect(cancelDeleteButton).toBeDisabled();
+    expect(confirmDeleteButton).toHaveTextContent('Deleting…');
+
+    await user.click(editButton);
+
+    expect(within(detailsDialog).queryByRole('heading', {
+      name: 'Update customer information',
+    })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'DELETE')).toHaveLength(1);
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'PUT')).toHaveLength(0);
+
+    resolveDelete(new Response(null, { status: 204 }));
+
+    expect(await screen.findByText('No customers yet')).toBeInTheDocument();
+  });
+
+  it('hides the deleted last row while loading the previous page', async () => {
+    const user = userEvent.setup();
+    let resolvePreviousPage: (response: Response) => void = () => {
+      throw new Error('Previous-page response resolver was not initialized.');
+    };
+    const pendingPreviousPageResponse = new Promise<Response>((resolve) => {
+      resolvePreviousPage = resolve;
+    });
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(customerPage([SECOND_CUSTOMER], 1, 2, 14)))
+      .mockResolvedValueOnce(jsonResponse(customerPage([FIRST_CUSTOMER], 2, 2, 14)))
+      .mockResolvedValueOnce(jsonResponse(FIRST_CUSTOMER_DETAILS))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockReturnValueOnce(pendingPreviousPageResponse);
+
+    render(<CustomersPage />);
+
+    await screen.findByRole('button', { name: 'View details for Grace Hopper' });
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', {
+      name: 'View details for Ada Lovelace',
+    }));
+
+    const detailsDialog = await screen.findByRole('dialog', { name: 'Ada Lovelace' });
+    await user.click(within(detailsDialog).getByRole('button', { name: 'Delete customer' }));
+    const deleteConfirmationHeading = within(detailsDialog).getByRole('heading', {
+      name: 'Delete this customer?',
+    });
+    const deleteConfirmation = deleteConfirmationHeading.closest('section');
+    if (deleteConfirmation === null) {
+      throw new Error('Delete confirmation section was not rendered.');
+    }
+    await user.click(within(deleteConfirmation).getByRole('button', {
+      name: 'Delete customer',
+    }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(5));
+    expect(screen.getByText('Loading customer directory…')).toBeInTheDocument();
+    expect(screen.queryByRole('button', {
+      name: 'View details for Ada Lovelace',
+    })).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Ada Lovelace' })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls[4]?.[0]).toBe('/api/customers?page=1&pageSize=13');
+
+    resolvePreviousPage(jsonResponse(customerPage([SECOND_CUSTOMER], 1, 1, 13)));
+
+    expect(await screen.findByRole('button', {
+      name: 'View details for Grace Hopper',
+    })).toBeInTheDocument();
   });
 
   it('closes the create dialog when the browser emits its Escape cancel event', async () => {

@@ -1,7 +1,6 @@
-import { getValidationErrors, isHttpError } from '../../../lib/http-client';
+import { getValidationErrors, InvalidResponseError, isHttpError } from '../../../lib/http-client';
 import {
   CUSTOMER_ERROR_CODES,
-  type CustomerErrorCode,
 } from '../api/customer-contracts';
 import type { CustomerFormErrors, CustomerFormField } from '../form/customer-form-model';
 
@@ -28,10 +27,19 @@ export type CustomerSubmissionError = Readonly<{
 }>;
 
 export function describeCustomerSubmissionError(error: unknown): CustomerSubmissionError {
+  if (error instanceof InvalidResponseError) {
+    return {
+      fieldErrors: {},
+      message: 'The server returned an unexpected response, so the result could not be confirmed. '
+        + 'The change may already have been saved. Check the customer directory before submitting again.',
+    };
+  }
+
   if (!isHttpError(error)) {
     return {
       fieldErrors: {},
-      message: 'The request could not be completed. Check your connection and try again.',
+      message: 'The request could not be completed, so the result could not be confirmed. '
+        + 'The change may already have been saved. Check the customer directory before submitting again.',
     };
   }
 
@@ -43,7 +51,7 @@ export function describeCustomerSubmissionError(error: unknown): CustomerSubmiss
     }
   }
 
-  const code = error.code as CustomerErrorCode | undefined;
+  const code = error.code;
   if (code === CUSTOMER_ERROR_CODES.duplicateNationalId) {
     fieldErrors.nationalId = duplicateMessage(
       'Another active customer already uses this National ID.',
@@ -112,10 +120,6 @@ export function describeCustomerListError(error: unknown): string {
   }
 
   return 'The customer directory could not be loaded. Check your connection and try again.';
-}
-
-export function isAbortError(error: unknown): boolean {
-  return error instanceof DOMException && error.name === 'AbortError';
 }
 
 function duplicateMessage(message: string, existingCustomerId?: number): string {

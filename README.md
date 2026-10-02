@@ -30,7 +30,7 @@ SuiteCase is designed the other way around: it wraps around the agency's establi
 ### Product Vision
 
 SuiteCase starts as a focused solution for real agency workflows.
-The goal is not “another CRM,” but a **back-office operating system for travel agencies**.
+
 
 ## Architecture Direction
 - Current: `Client + Server + Core` with vertical/feature-based slices inside the Server project

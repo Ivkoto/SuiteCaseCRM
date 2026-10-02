@@ -274,6 +274,6 @@ function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
 
-function isAbortError(error: unknown): boolean {
+export function isAbortError(error: unknown): boolean {
   return isRecord(error) && error.name === 'AbortError';
 }

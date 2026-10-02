@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# SuiteCase Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React and TypeScript desktop client for SuiteCase CRM. The implemented frontend scope is the Customer Management vertical slice. Other sidebar modules are visible but disabled and marked `Soon`.
 
-Currently, two official plugins are available:
+## Implemented workflows
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Collapsible desktop navigation and a persisted light/dark theme.
+- Server-paged customer directory with name/phone search and retry states.
+- Per-page customer selection and clear selection. `Add to Group` remains disabled until Programs & Groups exists.
+- Create customer, view details, full-replacement edit, and soft delete.
+- Client and server field validation with accessible error summaries and focus management.
+- Runtime validation of customer API responses and Problem Details error handling.
+- Bulgarian-market date presentation using the `Europe/Sofia` timezone for audit timestamps.
+- Dismissible success notices that automatically close after 30 seconds.
 
-## React Compiler
+There is currently no client-side router, authentication UI, document workflow, Travel Board, or active module other than Customers. The client is desktop-first; mobile optimization is not a project target.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the ESLint configuration
+- React 19
+- TypeScript 5.9
+- Vite 8
+- ESLint 9
+- Vitest, Testing Library, and jsdom
+- Custom CSS with locally hosted fonts and theme tokens
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Project structure
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src/
+  App.tsx / App.css              application shell, theme, and shell styles
+  index.css                      fonts, theme tokens, global styles
+  layout/app-sidebar.tsx         navigation, branding, and navigation icons
+  lib/http-client.ts             HTTP and Problem Details handling
+  features/customers/
+    api/                          contracts, API calls, response guards
+    directory/                    directory toolbar, table, and pagination
+    dialogs/                      create and details/edit/delete dialogs
+    form/                         form UI, mapping, and validation
+    notifications/               success notice
+    shared/                       formatting, errors, shared customer CSS
+    customers-page.tsx           customer directory orchestration
+  testing/setup.ts               Vitest/jsdom setup
+public/
+  fonts/                          locally hosted font files
+  *.png                           brand assets
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Tests are colocated with the code they cover.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Setup and development
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+From the repository root:
+
+```powershell
+cd .\ui\SuiteCase.Client
+npm ci
+npm run dev
 ```
+
+The development client runs at `https://localhost:54479`. Vite proxies `/api`, `/swagger`, and `/openapi` to the ASP.NET Core server. The default target is `https://localhost:7295`; `ASPNETCORE_HTTPS_PORT` or `ASPNETCORE_URLS` can override it.
+
+The .NET SDK is required when Vite needs to create the local ASP.NET Core HTTPS development certificate. Customer workflows also require the backend and its database dependencies to be running.
+
+## Commands
+
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the HTTPS Vite development server with Fast Refresh. |
+| `npm run build` | Type-check the client and create the production bundle in `dist/`. |
+| `npm run lint` | Run ESLint across the client. |
+| `npm test` | Run the Vitest suite once. |
+| `npm run preview` | Serve the generated Vite bundle locally. |
+
+The Visual Studio `.esproj` currently has `ShouldRunBuildScript` disabled. Run the npm build, lint, and test commands explicitly; a successful solution build alone does not verify the client.
+
+## API and state boundaries
+
+- The client calls same-origin `/api/customers` endpoints through `src/lib/http-client.ts`.
+- Network JSON is treated as unknown and validated before use.
+- HTTP failures use Problem Details and field-level error mapping without exposing raw server messages.
+- React component state and effects manage the current customer workflow. No global state or server-query library is installed.
+- The customer API and server remain authoritative for security, validation, audit, and data-integrity rules.

@@ -1,3 +1,5 @@
+import type { CustomerDetails } from '../api/customer-contracts';
+
 const ENGLISH_MONTH_ABBREVIATIONS = [
   'Jan',
   'Feb',
@@ -19,6 +21,12 @@ const AUDIT_DATE_FORMATTER = new Intl.DateTimeFormat('en-GB', {
   year: 'numeric',
   timeZone: 'Europe/Sofia',
 });
+
+export function formatFullName(customer: CustomerDetails): string {
+  return [customer.firstName, customer.middleName, customer.lastName]
+    .filter((part): part is string => part !== null && part.trim().length > 0)
+    .join(' ');
+}
 
 export function formatDate(value: string | null): string {
   if (value === null) {

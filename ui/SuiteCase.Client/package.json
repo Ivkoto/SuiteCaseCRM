@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:e2e": "node ./node_modules/typescript/bin/tsc -b && node ./node_modules/vite/bin/vite.js build && playwright test",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.63.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -36,10 +38,10 @@
   "overrides": {
     "@babel/core": "7.29.7",
     "minimatch@<4": {
-      "brace-expansion": "1.1.16"
+      "brace-expansion": "1.1.21"
     },
     "minimatch@>=10 <11": {
-      "brace-expansion": "5.0.7"
+      "brace-expansion": "5.0.12"
     }
   }
 }

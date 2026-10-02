@@ -5,16 +5,15 @@ import type {
   CustomerListItem,
   CustomerListQuery,
   IsoDate,
+  IsoDateTime,
   PagedResponse,
   UpdateCustomerRequest,
 } from './customer-contracts';
 
 const CUSTOMERS_PATH = '/api/customers';
+const ISO_DATE_TIME_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,7})?(?:Z|[+-](?:(?:0\d|1[0-3]):[0-5]\d|14:00))$/;
 
-export async function listCustomers(
-  query: CustomerListQuery = {},
-  signal?: AbortSignal,
-): Promise<PagedResponse<CustomerListItem>> {
+export async function listCustomers(query: CustomerListQuery = {}, signal?: AbortSignal,): Promise<PagedResponse<CustomerListItem>> {
   const searchParams = new URLSearchParams();
 
   if (query.page !== undefined) { searchParams.set('page', String(query.page)); }
@@ -49,11 +48,7 @@ export async function createCustomer(request: CreateCustomerRequest, signal?: Ab
   });
 }
 
-export async function updateCustomer(
-  id: number,
-  request: UpdateCustomerRequest,
-  signal?: AbortSignal,
-): Promise<CustomerDetails> {
+export async function updateCustomer( id: number, request: UpdateCustomerRequest, signal?: AbortSignal,): Promise<CustomerDetails> {
   return requestJson(customerPath(id), {
     method: 'PUT',
     body: request,
@@ -63,10 +58,7 @@ export async function updateCustomer(
   });
 }
 
-export async function deleteCustomer(
-  id: number,
-  signal?: AbortSignal,
-): Promise<void> {
+export async function deleteCustomer( id: number, signal?: AbortSignal,): Promise<void> {
   return requestEmpty(customerPath(id), {
     method: 'DELETE',
     signal,
@@ -78,9 +70,7 @@ function customerPath(id: number): string {
   return `${CUSTOMERS_PATH}/${id}`;
 }
 
-function isCustomerListResponse(
-  value: unknown,
-): value is PagedResponse<CustomerListItem> {
+function isCustomerListResponse( value: unknown,): value is PagedResponse<CustomerListItem> {
   if (!isRecord(value)) {
     return false;
   }
@@ -106,7 +96,9 @@ function isCustomerListItem(value: unknown): value is CustomerListItem {
     && isNullableIsoDate(value.dateOfBirth)
     && (value.age === null || isInteger(value.age))
     && isNullableIsoDate(value.passportExpiresOn)
-    && typeof value.isPassportValid === 'boolean';
+    && typeof value.isPassportValid === 'boolean'
+    && isIsoDateTime(value.createdAt)
+    && isNullableIsoDateTime(value.updatedAt);
 }
 
 function isCustomerDetails(value: unknown): value is CustomerDetails {
@@ -129,7 +121,9 @@ function isCustomerDetails(value: unknown): value is CustomerDetails {
     && isNullableString(value.phoneNumber)
     && isCountryCode(value.residenceCountryCode)
     && typeof value.residenceCountryName === 'string'
-    && isNullableString(value.notes);
+    && isNullableString(value.notes)
+    && isIsoDateTime(value.createdAt)
+    && isNullableIsoDateTime(value.updatedAt);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -158,6 +152,41 @@ function isNullableIsoDate(value: unknown): value is IsoDate | null {
 
 function isIsoDate(value: unknown): value is IsoDate {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function isNullableIsoDateTime(value: unknown): value is IsoDateTime | null {
+  return value === null || isIsoDateTime(value);
+}
+
+function isIsoDateTime(value: unknown): value is IsoDateTime {
+  if (typeof value !== 'string') {
+    return false;
+  }
+
+  const match = ISO_DATE_TIME_PATTERN.exec(value);
+  if (match === null) {
+    return false;
+  }
+
+  return isValidCalendarDate(
+    Number(match[1]),
+    Number(match[2]),
+    Number(match[3]),
+  );
+}
+
+function isValidCalendarDate(year: number, month: number, day: number): boolean {
+  const daysInMonth = [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const maximumDay = daysInMonth[month - 1];
+
+  return year >= 1
+    && maximumDay !== undefined
+    && day >= 1
+    && day <= maximumDay;
+}
+
+function isLeapYear(year: number): boolean {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
 function isCountryCode(value: unknown): value is string {

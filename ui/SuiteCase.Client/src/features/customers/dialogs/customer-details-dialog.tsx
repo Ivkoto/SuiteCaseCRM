@@ -1,27 +1,11 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type MouseEvent,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode, } from 'react';
 import { deleteCustomer, getCustomer, updateCustomer } from '../api/customers-api';
 import type { CustomerDetails } from '../api/customer-contracts';
 import { CustomerForm } from '../form/customer-form';
-import {
-  customerDetailsToForm,
-  toUpdateCustomerRequest,
-  type CustomerFormErrors,
-  type CustomerFormField,
-  type CustomerFormValues,
-} from '../form/customer-form-model';
-import { formatAuditDate, formatDate } from '../shared/customer-format';
-import {
-  describeCustomerLoadError,
-  describeCustomerSubmissionError,
-  isAbortError,
-} from '../shared/customer-error-messages';
+import { customerDetailsToForm, removeError, toUpdateCustomerRequest, type CustomerFormErrors, type CustomerFormField, type CustomerFormValues, } from '../form/customer-form-model';
+import { formatAuditDate, formatDate, formatFullName } from '../shared/customer-format';
+import { isAbortError } from '../../../lib/http-client';
+import { describeCustomerLoadError, describeCustomerSubmissionError, } from '../shared/customer-error-messages';
 import { CustomerSuccessNotice } from '../notifications/customer-success-notice';
 import './customer-dialog.css';
 
@@ -37,12 +21,7 @@ type CustomerDetailsDialogProps = Readonly<{
   onDeleted: (customerId: number) => void;
 }>;
 
-export function CustomerDetailsDialog({
-  customerId,
-  onClose,
-  onChanged,
-  onDeleted,
-}: CustomerDetailsDialogProps) {
+export function CustomerDetailsDialog({ customerId, onClose, onChanged, onDeleted, }: CustomerDetailsDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const loadingStateRef = useRef<HTMLDivElement>(null);
@@ -130,6 +109,10 @@ export function CustomerDetailsDialog({
   }, [isDeleteConfirmationVisible]);
 
   async function handleSave(values: CustomerFormValues) {
+    if (isBusy) {
+      return;
+    }
+
     setIsSaving(true);
     setFieldErrors({});
     setFormError(null);
@@ -152,6 +135,10 @@ export function CustomerDetailsDialog({
   }
 
   async function handleDelete() {
+    if (isBusy) {
+      return;
+    }
+
     setIsDeleting(true);
     setFormError(null);
 
@@ -166,18 +153,14 @@ export function CustomerDetailsDialog({
   }
 
   function clearFieldError(field: CustomerFormField) {
-    setFieldErrors((current) => {
-      if (current[field] === undefined) {
-        return current;
-      }
-
-      const next = { ...current };
-      delete next[field];
-      return next;
-    });
+    setFieldErrors((current) => removeError(current, field));
   }
 
   function beginEditing() {
+    if (isBusy) {
+      return;
+    }
+
     setFieldErrors({});
     setFormError(null);
     setStatusMessage(null);
@@ -186,10 +169,32 @@ export function CustomerDetailsDialog({
   }
 
   function cancelEditing() {
+    if (isBusy) {
+      return;
+    }
+
     setFieldErrors({});
     setFormError(null);
     shouldReturnFocusToEditButton.current = true;
     setIsEditing(false);
+  }
+
+  function showDeleteConfirmation() {
+    if (isBusy) {
+      return;
+    }
+
+    setFormError(null);
+    setIsDeleteConfirmationVisible(true);
+  }
+
+  function cancelDeleteConfirmation() {
+    if (isBusy) {
+      return;
+    }
+
+    shouldReturnFocusToDeleteButton.current = true;
+    setIsDeleteConfirmationVisible(false);
   }
 
   function handleBackdropClick(event: MouseEvent<HTMLDialogElement>) {
@@ -277,6 +282,7 @@ export function CustomerDetailsDialog({
                   className="customer-button customer-button--primary"
                   ref={editButtonRef}
                   type="button"
+                  disabled={isBusy}
                   onClick={beginEditing}
                 >
                   Edit profile
@@ -285,10 +291,8 @@ export function CustomerDetailsDialog({
                   className="customer-button customer-button--danger-secondary"
                   ref={deleteButtonRef}
                   type="button"
-                  onClick={() => {
-                    setFormError(null);
-                    setIsDeleteConfirmationVisible(true);
-                  }}
+                  disabled={isBusy}
+                  onClick={showDeleteConfirmation}
                 >
                   Delete customer
                 </button>
@@ -324,18 +328,15 @@ export function CustomerDetailsDialog({
                     <button
                       className="customer-button customer-button--secondary"
                       type="button"
-                      disabled={isDeleting}
-                      onClick={() => {
-                        shouldReturnFocusToDeleteButton.current = true;
-                        setIsDeleteConfirmationVisible(false);
-                      }}
+                      disabled={isBusy}
+                      onClick={cancelDeleteConfirmation}
                     >
                       Cancel
                     </button>
                     <button
                       className="customer-button customer-button--danger"
                       type="button"
-                      disabled={isDeleting}
+                      disabled={isBusy}
                       onClick={handleDelete}
                     >
                       {isDeleting ? 'Deleting…' : 'Delete customer'}
@@ -399,7 +400,7 @@ export function CustomerDetailsDialog({
                 mode="edit"
                 initialValues={customerDetailsToForm(customer)}
                 submitLabel="Save changes"
-                isSubmitting={isSaving}
+                isSubmitting={isBusy}
                 serverErrors={fieldErrors}
                 formError={formError}
                 onCancel={cancelEditing}
@@ -448,12 +449,6 @@ function DetailItem({
       </strong>
     </div>
   );
-}
-
-function formatFullName(customer: CustomerDetails): string {
-  return [customer.firstName, customer.middleName, customer.lastName]
-    .filter((part): part is string => part !== null && part.trim().length > 0)
-    .join(' ');
 }
 
 function formatLatinName(customer: CustomerDetails): string | null {
