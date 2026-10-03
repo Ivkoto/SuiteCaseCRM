@@ -68,6 +68,20 @@ The development client runs at `https://localhost:54479`. Vite proxies `/api`, `
 
 The .NET SDK is required when Vite needs to create the local ASP.NET Core HTTPS development certificate. Customer workflows also require the backend and its database dependencies to be running.
 
+### Sharing the development app
+
+The development server listens on localhost by default. Dev Tunnels can forward port `54479` without changing this binding. The tunnel hostname allowlist in `vite.config.ts` supports Fast Refresh connections; it is not authentication.
+
+For direct access from another computer on the same network, explicitly enable network listening:
+
+```powershell
+npm run dev -- --host
+```
+
+This listens on all network interfaces. Share `https://<your-PC-LAN-IP>:54479` and allow the port through your firewall only on the trusted private network. The localhost development certificate can produce a browser certificate warning when accessed through a LAN address.
+
+The Customer API does not yet require authentication. Share only disposable test data, use tunnel access controls where possible, and stop sharing when the demonstration is finished. Anyone with access can read and modify customer records. No backend binding or database connection changes are needed.
+
 ## Commands
 
 | Command | Purpose |

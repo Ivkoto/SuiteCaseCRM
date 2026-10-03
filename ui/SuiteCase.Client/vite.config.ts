@@ -26,7 +26,7 @@ export default defineConfig(({ command, isPreview }) => {
             }
         },
         server: {
-            host: true,
+            host: 'localhost',
             allowedHosts: ['.devtunnels.ms'],
             proxy: {
                 '/api': { target, secure: false },
