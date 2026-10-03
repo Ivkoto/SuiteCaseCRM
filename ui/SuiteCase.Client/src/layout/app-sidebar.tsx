@@ -1,36 +1,14 @@
 import type { ReactNode } from 'react'
-
-type NavigationIconName =
-  | 'dashboard'
-  | 'customers'
-  | 'programs'
-  | 'bookings'
-  | 'documents'
-  | 'payments'
-  | 'administration'
-
-type NavigationItem = Readonly<{
-  label: string
-  icon: NavigationIconName
-  isActive?: boolean
-}>
+import { NavLink } from 'react-router'
+import type { AppPageMetadata, NavigationIconName } from '../routing/app-page-config'
 
 type AppSidebarProps = Readonly<{
+  pages: readonly Pick<AppPageMetadata, 'path' | 'title' | 'icon' | 'isAvailable'>[]
   isCollapsed: boolean
   onToggle: () => void
 }>
 
-const navigationItems: readonly NavigationItem[] = [
-  { label: 'Dashboard', icon: 'dashboard' },
-  { label: 'Customers', icon: 'customers', isActive: true },
-  { label: 'Programs & Groups', icon: 'programs' },
-  { label: 'Bookings', icon: 'bookings' },
-  { label: 'Documents', icon: 'documents' },
-  { label: 'Payments', icon: 'payments' },
-  { label: 'Administration', icon: 'administration' },
-]
-
-export function AppSidebar({ isCollapsed, onToggle }: AppSidebarProps) {
+export function AppSidebar({ pages, isCollapsed, onToggle }: AppSidebarProps) {
   return (
     <aside className="app-sidebar" id="primary-sidebar">
       <div className="app-sidebar-header">
@@ -69,26 +47,28 @@ export function AppSidebar({ isCollapsed, onToggle }: AppSidebarProps) {
 
       <nav className="app-navigation" aria-label="Primary navigation">
         <ul>
-          {navigationItems.map((item) => (
-            <li key={item.label}>
-              {item.isActive ? (
-                <a
-                  className="app-nav-item app-nav-item--active"
-                  href="#main-content"
-                  aria-current="page"
-                  title={item.label}
+          {pages.map((page) => (
+            <li key={page.path}>
+              {page.isAvailable ? (
+                <NavLink
+                  className={({ isActive }) => (
+                    `app-nav-item${isActive ? ' app-nav-item--active' : ''}`
+                  )}
+                  to={page.path}
+                  end={page.path === '/'}
+                  title={page.title}
                 >
-                  <NavigationIcon name={item.icon} />
-                  <span className="app-nav-label">{item.label}</span>
-                </a>
+                  <NavigationIcon name={page.icon} />
+                  <span className="app-nav-label">{page.title}</span>
+                </NavLink>
               ) : (
                 <span
                   aria-disabled="true"
                   className="app-nav-item app-nav-item--disabled"
-                  title={`${item.label} — coming later`}
+                  title={`${page.title} — coming later`}
                 >
-                  <NavigationIcon name={item.icon} />
-                  <span className="app-nav-label">{item.label}</span>
+                  <NavigationIcon name={page.icon} />
+                  <span className="app-nav-label">{page.title}</span>
                   <span className="app-nav-badge">Soon</span>
                 </span>
               )}

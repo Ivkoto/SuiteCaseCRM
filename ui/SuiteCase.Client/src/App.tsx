@@ -1,8 +1,14 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { matchPath, Outlet, useLocation } from 'react-router'
 import './App.css'
-import { CustomersPage } from './features/customers/customers-page'
 import { AppSidebar } from './layout/app-sidebar'
 import { ContentErrorBoundary } from './layout/content-error-boundary'
+import type { AppPageMetadata } from './routing/app-page-config'
+
+type AppProps = Readonly<{
+  pages: readonly AppPageMetadata[]
+  defaultPage: AppPageMetadata
+}>
 
 type AppTheme = 'light' | 'dark'
 
@@ -17,7 +23,12 @@ function getInitialTheme(): AppTheme {
   }
 }
 
-function App() {
+function App({ pages, defaultPage }: AppProps) {
+  const { pathname } = useLocation()
+  const currentPage = pages.find((page) => (
+    matchPath({ path: page.path, end: page.path === '/' }, pathname) !== null
+  )) ?? defaultPage
+  const mainRef = useRef<HTMLElement>(null)
   const [theme, setTheme] = useState<AppTheme>(getInitialTheme)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(
     () => window.matchMedia('(max-width: 62rem)').matches,
@@ -43,14 +54,19 @@ function App() {
     return () => compactSidebar.removeEventListener('change', handleViewportChange)
   }, [])
 
+  useEffect(() => {
+    mainRef.current?.focus()
+  }, [pathname])
+
   return (
     <>
       <a className="app-skip-link" href="#main-content">
-        Skip to customer content
+        Skip to main content
       </a>
 
       <div className={`app-shell${isSidebarCollapsed ? ' app-shell--collapsed' : ''}`}>
         <AppSidebar
+          pages={pages}
           isCollapsed={isSidebarCollapsed}
           onToggle={() => setIsSidebarCollapsed((isCollapsed) => !isCollapsed)}
         />
@@ -58,8 +74,10 @@ function App() {
         <div className="app-workspace">
           <header className="app-workspace-header">
             <div>
-              <p className="app-workspace-eyebrow">Customer management</p>
-              <h1>Customers</h1>
+              <p className="app-workspace-eyebrow">
+                {currentPage.eyebrow}
+              </p>
+              <h1>{currentPage.title}</h1>
             </div>
             <button
               aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
@@ -99,9 +117,9 @@ function App() {
             </button>
           </header>
 
-          <main className="app-main" id="main-content" tabIndex={-1}>
-            <ContentErrorBoundary>
-              <CustomersPage />
+          <main className="app-main" id="main-content" ref={mainRef} tabIndex={-1}>
+            <ContentErrorBoundary key={pathname}>
+              <Outlet />
             </ContentErrorBoundary>
           </main>
         </div>

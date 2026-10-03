@@ -13,11 +13,16 @@ React and TypeScript desktop client for SuiteCase CRM. The implemented frontend 
 - Bulgarian-market date presentation using the `Europe/Sofia` timezone for audit timestamps.
 - Dismissible success notices that automatically close after 30 seconds.
 
-There is currently no client-side router, authentication UI, document workflow, Travel Board, or active module other than Customers. The client is desktop-first; mobile optimization is not a project target.
+Client-side routing defines `/`, `/customers`, `/programs`, `/bookings`, `/documents`, `/payments`, and `/administration`. Only Customers has implemented content. Dashboard and future section URLs render the shared layout with the section's header and an empty main area. Their sidebar items remain disabled and marked `Soon`. Unmatched URLs redirect to `/`.
+
+`src/routing/app-page-config.ts` owns each section's path, title, header description, icon, and page component. Routes, header text, and sidebar availability are derived from this configuration. To activate a section, implement its page in the owning feature folder, import it into the configuration, and replace that section's `Component: null` with the page component. No changes to `App.tsx`, the sidebar, or the route renderer are required. Sidebar availability is not an authorization boundary; the API must enforce access control.
+
+There is currently no authentication UI, document workflow, Travel Board, or active module other than Customers. The client is desktop-first; mobile optimization is not a project target.
 
 ## Stack
 
 - React 19
+- React Router 7 (declarative routing)
 - TypeScript 5.9
 - Vite 8
 - ESLint 9
@@ -29,6 +34,7 @@ There is currently no client-side router, authentication UI, document workflow, 
 ```text
 src/
   App.tsx / App.css              application shell, theme, and shell styles
+  routing/                      page configuration and route rendering
   index.css                      fonts, theme tokens, global styles
   layout/app-sidebar.tsx         navigation, branding, and navigation icons
   lib/http-client.ts             HTTP and Problem Details handling

@@ -17,8 +17,74 @@ test.beforeEach(async ({ page }) => {
     })
   })
 
-  await page.goto('/')
+  await page.goto('/customers')
   await expect(page.getByText('No customers yet')).toBeVisible()
+})
+
+test('the blank dashboard navigates to Customers and supports browser history', async ({ page }) => {
+  const customerRequests: string[] = []
+  page.on('request', (request) => {
+    if (request.url().includes('/api/customers')) {
+      customerRequests.push(request.url())
+    }
+  })
+
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: 'Dashboard', exact: true })).toBeVisible()
+  await expect(page.getByRole('main')).toBeEmpty()
+  expect(customerRequests).toHaveLength(0)
+
+  const customersLink = page.getByRole('link', { name: 'Customers', exact: true })
+  await expect(customersLink).not.toHaveAttribute('aria-current')
+  await customersLink.click()
+
+  await expect(page).toHaveURL(/\/customers$/)
+  await expect(page.getByText('No customers yet')).toBeVisible()
+  await expect(customersLink).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('main')).toBeFocused()
+
+  await page.goBack()
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.getByRole('heading', { name: 'Dashboard', exact: true })).toBeVisible()
+  await expect(page.getByRole('main')).toBeEmpty()
+
+  await page.goForward()
+  await expect(page).toHaveURL(/\/customers$/)
+  await expect(page.getByText('No customers yet')).toBeVisible()
+})
+
+test('planned section URLs remain blank without enabling navigation or requesting customers', async ({ page }) => {
+  const customerRequests: string[] = []
+  page.on('request', (request) => {
+    if (request.url().includes('/api/customers')) {
+      customerRequests.push(request.url())
+    }
+  })
+
+  const plannedSections = [
+    { path: '/programs', title: 'Programs & Groups' },
+    { path: '/bookings', title: 'Bookings' },
+    { path: '/documents', title: 'Documents' },
+    { path: '/payments', title: 'Payments' },
+    { path: '/administration', title: 'Administration' },
+  ]
+
+  for (const { path, title } of plannedSections) {
+    await page.goto(path)
+
+    await expect(page).toHaveURL((url) => url.pathname === path)
+    await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
+    await expect(page.getByRole('main')).toBeEmpty()
+
+    const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
+    const plannedNavigationItem = navigation.locator('[aria-disabled="true"]').filter({
+      has: page.getByText(title, { exact: true }),
+    })
+    await expect(plannedNavigationItem).toContainText('Soon')
+    await expect(navigation.getByRole('link', { name: title, exact: true })).toHaveCount(0)
+  }
+
+  expect(customerRequests).toHaveLength(0)
 })
 
 test('the customer dialog traps focus and returns it to its trigger', async ({ page }) => {
