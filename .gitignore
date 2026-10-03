@@ -14,7 +14,9 @@ DeleteBinObjFolders.bat
 AGENTS.md
 
 # VS Code
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
 
 # Rider
 .idea/

@@ -1,0 +1,9 @@
+{
+  "remote.portsAttributes": {
+    "54479": {
+      "label": "SuiteCase UI",
+      "protocol": "https",
+      "onAutoForward": "notify"
+    }
+  }
+}

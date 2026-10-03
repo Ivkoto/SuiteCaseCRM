@@ -1,68 +1,226 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@font-face {
+    font-family: "Ubuntu Sans";
+    src: url("/fonts/UbuntuSans_(wdth,wght).woff2") format("woff2");
+    font-style: normal;
+    font-weight: 100 800;
+    font-stretch: 75% 100%;
+    font-display: swap;
+}
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@font-face {
+    font-family: "Montserrat Alternates";
+    src: url("/fonts/MontserratAlternates-Regular.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
 
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --app-page-bg: #f4f7fa;
+  --app-page-background:
+    radial-gradient(circle at 20% -10%, rgba(69, 224, 207, 0.18), transparent 36%),
+    radial-gradient(circle at 85% -25%, rgba(255, 107, 71, 0.1), transparent 42%),
+    #f4f7fa;
+  --app-surface: #ffffff;
+  --app-surface-raised: #ffffff;
+  --app-surface-subtle: #f4f7fa;
+  --app-surface-hover: rgba(14, 156, 141, 0.07);
+  --app-surface-selected: rgba(14, 156, 141, 0.12);
+  --app-surface-disabled: #edf1f4;
+  --app-table-header: rgba(244, 247, 250, 0.96);
+  --app-text: #0d1320;
+  --app-text-secondary: #44546a;
+  --app-text-muted: #5b6b80;
+  --app-border-soft: rgba(13, 19, 32, 0.06);
+  --app-border: rgba(13, 19, 32, 0.1);
+  --app-border-strong: rgba(13, 19, 32, 0.2);
+  --app-primary: #0e9c8d;
+  --app-primary-text: #0b7f74;
+  --app-primary-hover: #0d8f82;
+  --app-primary-soft: rgba(14, 156, 141, 0.12);
+  --app-on-primary: #070b14;
+  --app-on-danger: #ffffff;
+  --app-on-success: #ffffff;
+  --app-focus-ring: rgba(14, 156, 141, 0.38);
+  --app-selection-text: #0d1320;
+  --app-selection-bg: rgba(14, 156, 141, 0.22);
+  --app-input-bg: #ffffff;
+  --app-input-invalid-bg: #fffafb;
+  --app-glass-bg: rgba(255, 255, 255, 0.72);
+  --app-glass-strong: rgba(255, 255, 255, 0.94);
+  --app-glass-border: rgba(13, 19, 32, 0.12);
+  --app-shadow-sm: 0 1px 0 rgba(13, 19, 32, 0.08);
+  --app-shadow-panel:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 1px 0 0 rgba(255, 255, 255, 0.5),
+    0 8px 24px rgba(13, 19, 32, 0.06);
+  --app-shadow-dialog: 0 1.4rem 4rem rgba(7, 11, 20, 0.28);
+  --app-dialog-backdrop: rgba(7, 11, 20, 0.58);
+  --app-success-text: #24683f;
+  --app-success-bg: #edf9f1;
+  --app-success-border: #b7dfc5;
+  --app-success-solid: #3a8c5a;
+  --app-warning-text: #a53e23;
+  --app-warning-bg: rgba(225, 78, 43, 0.1);
+  --app-warning-border: rgba(225, 78, 43, 0.34);
+  --app-danger-text: #8f1f3b;
+  --app-danger-bg: #fff2f5;
+  --app-danger-border: #e2a9b7;
+  --app-danger-solid: #a63250;
+  --app-danger-hover: #8f2742;
+  --app-neutral-text: #5b6b80;
+  --app-neutral-bg: #f0f3f5;
+  --app-neutral-border: rgba(13, 19, 32, 0.14);
+  --app-sidebar-background:
+    radial-gradient(circle at 50% -10%, rgba(69, 224, 207, 0.14), transparent 36%),
+    linear-gradient(180deg, #112d42 0%, #070b14 100%);
+  --app-sidebar-text: #e9f0f7;
+  --app-sidebar-muted: #8fa0b5;
+  --app-sidebar-border: rgba(255, 255, 255, 0.1);
+  --app-sidebar-control: rgba(255, 255, 255, 0.04);
+  --app-sidebar-control-hover: rgba(69, 224, 207, 0.1);
+  --app-sidebar-active: rgba(69, 224, 207, 0.13);
+  --app-sidebar-active-border: rgba(69, 224, 207, 0.45);
+  --app-sidebar-accent: #45e0cf;
+  --app-brand-surface: rgba(255, 255, 255, 0.93);
+  --app-brand-text: #0d1320;
+  --app-brand-muted: #5b6b80;
+  --app-brand-shadow: 0 0.45rem 1.6rem rgba(0, 10, 21, 0.18);
+  font-family: "Ubuntu Sans", ui-sans-serif, system-ui, sans-serif;
+  color: var(--app-text);
+  background: var(--app-page-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --app-page-bg: #070b14;
+  --app-page-background:
+    radial-gradient(circle at 20% -10%, rgba(69, 224, 207, 0.1), transparent 36%),
+    radial-gradient(circle at 85% -25%, rgba(157, 123, 255, 0.08), transparent 42%),
+    #070b14;
+  --app-surface: #0d1320;
+  --app-surface-raised: #111827;
+  --app-surface-subtle: #121b2b;
+  --app-surface-hover: rgba(69, 224, 207, 0.08);
+  --app-surface-selected: rgba(69, 224, 207, 0.14);
+  --app-surface-disabled: rgba(255, 255, 255, 0.06);
+  --app-table-header: rgba(18, 27, 43, 0.97);
+  --app-text: #e9f0f7;
+  --app-text-secondary: #b7c3d4;
+  --app-text-muted: #8fa0b5;
+  --app-border-soft: rgba(255, 255, 255, 0.06);
+  --app-border: rgba(255, 255, 255, 0.1);
+  --app-border-strong: rgba(255, 255, 255, 0.18);
+  --app-primary: #45e0cf;
+  --app-primary-text: #45e0cf;
+  --app-primary-hover: #70eadc;
+  --app-primary-soft: rgba(69, 224, 207, 0.13);
+  --app-on-primary: #070b14;
+  --app-on-danger: #ffffff;
+  --app-on-success: #ffffff;
+  --app-focus-ring: rgba(69, 224, 207, 0.42);
+  --app-selection-text: #e9f0f7;
+  --app-selection-bg: rgba(69, 224, 207, 0.3);
+  --app-input-bg: rgba(255, 255, 255, 0.06);
+  --app-input-invalid-bg: rgba(255, 107, 140, 0.08);
+  --app-glass-bg: rgba(13, 19, 32, 0.72);
+  --app-glass-strong: rgba(13, 19, 32, 0.94);
+  --app-glass-border: rgba(255, 255, 255, 0.12);
+  --app-shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.24);
+  --app-shadow-panel: 0 18px 48px rgba(0, 0, 0, 0.18);
+  --app-shadow-dialog: 0 1.4rem 4rem rgba(0, 0, 0, 0.45);
+  --app-dialog-backdrop: rgba(0, 0, 0, 0.68);
+  --app-success-text: #7ee2a8;
+  --app-success-bg: rgba(68, 190, 116, 0.12);
+  --app-success-border: rgba(126, 226, 168, 0.34);
+  --app-success-solid: #3fa66b;
+  --app-warning-text: #ff8a6d;
+  --app-warning-bg: rgba(255, 107, 71, 0.12);
+  --app-warning-border: rgba(255, 107, 71, 0.38);
+  --app-danger-text: #ff9bb0;
+  --app-danger-bg: rgba(255, 107, 140, 0.11);
+  --app-danger-border: rgba(255, 155, 176, 0.36);
+  --app-danger-solid: #c54867;
+  --app-danger-hover: #b83a58;
+  --app-neutral-text: #b7c3d4;
+  --app-neutral-bg: rgba(255, 255, 255, 0.06);
+  --app-neutral-border: rgba(255, 255, 255, 0.14);
+  --app-sidebar-background:
+    radial-gradient(circle at 50% -10%, rgba(69, 224, 207, 0.12), transparent 36%),
+    linear-gradient(180deg, #0d1320 0%, #070b14 100%);
+  --app-sidebar-text: #e9f0f7;
+  --app-sidebar-muted: #8fa0b5;
+  --app-sidebar-border: rgba(255, 255, 255, 0.1);
+  --app-sidebar-control: rgba(255, 255, 255, 0.04);
+  --app-sidebar-control-hover: rgba(69, 224, 207, 0.1);
+  --app-sidebar-active: rgba(69, 224, 207, 0.13);
+  --app-sidebar-active-border: rgba(69, 224, 207, 0.45);
+  --app-sidebar-accent: #45e0cf;
+  --app-brand-surface: rgba(255, 255, 255, 0.93);
+  --app-brand-shadow: 0 0.45rem 1.6rem rgba(0, 0, 0, 0.3);
 }
-a:hover {
-  color: #535bf2;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 20rem;
+  min-height: 100%;
+  background: var(--app-page-bg);
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  min-width: 20rem;
   min-height: 100vh;
+  margin: 0;
+  color: var(--app-text);
+  background: var(--app-page-bg);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+a {
+  color: inherit;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 0.18rem solid var(--app-primary);
+  outline-offset: 0.16rem;
+}
+
+::selection {
+  color: var(--app-selection-text);
+  background: var(--app-selection-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }

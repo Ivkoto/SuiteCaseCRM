@@ -8,6 +8,7 @@ EF Core entities, configurations, and migrations are implemented for the model b
 - SuiteCase starts as a single-agency CRM.
 - SQL Server is the primary database.
 - EF Core migrations are the schema source of truth.
+- Do not use startup `MigrateAsync()` as the staging/production migration strategy.
 - Main operational tables use soft delete with `DeletedAt`.
 - Money is represented as a decimal amount plus currency.
 - Customer-sensitive values are never stored as raw plaintext.
@@ -160,6 +161,21 @@ Applicable discount
 ```
 
 These are not stored on `Customer`.
+
+### Customer data decisions
+
+- Supported residence countries are commonly recognized European countries; microstates are excluded for now. The maintained list is in [Countries.cs](../src/SuiteCase.Core/Countries/Countries.cs).
+- A supplied date of birth is authoritative because `NationalId` can contain an untyped foreign identifier. Only when it is missing may an EGN-compatible value supply the date after structural and checksum validation. Passing that validation does not prove the identifier's issuing scheme.
+- Age is calculated at response time. Passport validity requires expiry on or after six months from the reference date.
+- Customer search supports partial name and phone matches, but National ID and passport lookup use exact normalized HMAC matches, never partial sensitive-identifier searches.
+
+### Sensitive identifier protection
+
+- Normalize identifiers with `Trim().ToUpperInvariant()` before protection or hashing; blank values become `null`. `Protect` and `Hash` expect normalized input.
+- Use ASP.NET Core Data Protection for reversible display/export and HMAC-SHA256 for exact lookup and active-row uniqueness.
+- Keep `Security:SensitiveDataHashKey` stable after real data exists. Changing it breaks lookup and duplicate detection against existing hashes.
+- Persist and back up the Data Protection key ring before production, as required by [authentication setup](Authentication.md#browser-authentication).
+- Soft delete allows another active customer to reuse an identifier. Clearing an identifier on update clears both its protected value and hash.
 
 ## CustomerDocument (Planned)
 

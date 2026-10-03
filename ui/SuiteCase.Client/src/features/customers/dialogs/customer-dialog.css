@@ -1,0 +1,285 @@
+.customer-dialog-eyebrow {
+  margin: 0 0 0.2rem;
+  color: var(--app-primary-text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.customer-dialog-header h2,
+.customer-edit-heading h3,
+.customer-delete-confirmation h3,
+.customer-detail-card h3 {
+  margin: 0;
+  color: var(--customer-ink);
+}
+
+.customer-dialog {
+  inset: 0;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  max-height: none;
+  margin: 0;
+  padding: 1rem;
+  overflow: hidden;
+  border: 0;
+  color: var(--customer-ink);
+  background: transparent;
+}
+
+.customer-dialog[open] {
+  display: grid;
+  place-items: center;
+}
+
+.customer-details-dialog[open] {
+  place-items: stretch end;
+  padding: 0;
+}
+
+.customer-dialog::backdrop {
+  background: var(--app-dialog-backdrop);
+  backdrop-filter: blur(0.12rem);
+  -webkit-backdrop-filter: blur(0.12rem);
+}
+
+.customer-dialog-surface {
+  width: min(68rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  border: 1px solid var(--app-glass-border);
+  border-radius: 0.85rem;
+  background: var(--app-glass-strong);
+  box-shadow: var(--app-shadow-dialog);
+  backdrop-filter: blur(0.75rem);
+  -webkit-backdrop-filter: blur(0.75rem);
+}
+
+.customer-drawer-surface {
+  width: min(46rem, 100vw);
+  max-height: 100vh;
+  height: 100vh;
+  border-width: 0 0 0 1px;
+  border-radius: 0;
+}
+
+.customer-dialog-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.15rem 0.85rem;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-glass-strong);
+}
+
+.customer-dialog-header h2 {
+  font-size: 1.18rem;
+  line-height: 1.25;
+}
+
+.customer-dialog-intro,
+.customer-drawer-subtitle {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.customer-dialog-intro {
+  padding: 0.8rem 1.15rem 0;
+}
+
+.customer-drawer-subtitle {
+  margin-top: 0.25rem;
+}
+
+.customer-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 0.5rem;
+  color: var(--app-text-secondary);
+  background: var(--app-surface-raised);
+  font: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.customer-icon-button:hover:not(:disabled) {
+  border-color: var(--app-primary);
+  color: var(--app-primary-text);
+  background: var(--app-primary-soft);
+}
+
+.customer-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.customer-drawer-content {
+  padding: 1rem 1.1rem 1.25rem;
+}
+
+.customer-drawer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.customer-delete-confirmation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+  padding: 0.75rem;
+  border: 1px solid var(--app-danger-border);
+  border-radius: 0.6rem;
+  background: var(--app-danger-bg);
+}
+
+.customer-delete-confirmation h3 {
+  font-size: 0.83rem;
+}
+
+.customer-delete-confirmation p {
+  margin: 0.25rem 0 0;
+  color: var(--app-danger-text);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.customer-delete-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.45rem;
+}
+
+.customer-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.customer-detail-card {
+  min-width: 0;
+  padding: 0.78rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.65rem;
+  background: var(--app-surface-subtle);
+}
+
+.customer-detail-card--wide {
+  grid-column: 1 / -1;
+}
+
+.customer-detail-card h3 {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--app-border);
+  font-size: 0.78rem;
+  letter-spacing: 0.025em;
+}
+
+.customer-detail-card-content {
+  display: grid;
+  gap: 0.52rem;
+  margin-top: 0.55rem;
+}
+
+.customer-detail-item {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.75fr) minmax(0, 1.25fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  font-size: 0.75rem;
+}
+
+.customer-detail-item > span {
+  color: var(--app-text-muted);
+}
+
+.customer-detail-item > strong {
+  overflow-wrap: anywhere;
+  color: var(--app-text);
+  font-weight: 680;
+}
+
+.customer-sensitive-value {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: 0.03em;
+}
+
+.customer-notes {
+  margin: 0;
+  color: var(--app-text-secondary);
+  font-size: 0.76rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.customer-edit-heading {
+  margin-bottom: 0.65rem;
+}
+
+.customer-edit-heading h3 {
+  font-size: 0.94rem;
+}
+
+.customer-details-dialog .customer-form {
+  padding: 0;
+}
+
+.customer-details-dialog .customer-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 52rem) {
+  .customer-delete-confirmation {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 40rem) {
+  .customer-dialog {
+    padding: 0;
+  }
+
+  .customer-dialog-surface,
+  .customer-drawer-surface {
+    width: 100vw;
+    max-height: 100vh;
+    min-height: 100vh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .customer-details-dialog .customer-form-grid,
+  .customer-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-detail-card--wide {
+    grid-column: auto;
+  }
+
+  .customer-delete-actions {
+    width: 100%;
+  }
+
+  .customer-delete-actions > .customer-button {
+    flex: 1 1 0;
+  }
+}

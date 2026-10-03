@@ -9,5 +9,7 @@ public sealed record CustomerShortDetailsResponse(
     DateOnly? DateOfBirth,
     int? Age,
     DateOnly? PassportExpiresOn,
-    bool IsPassportValid
+    bool IsPassportValid,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? UpdatedAt
 );

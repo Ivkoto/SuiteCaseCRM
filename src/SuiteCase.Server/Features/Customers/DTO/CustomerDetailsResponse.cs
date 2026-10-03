@@ -16,5 +16,7 @@ public sealed record CustomerDetailsResponse(
     string? PhoneNumber,
     string ResidenceCountryCode,
     string ResidenceCountryName,
-    string? Notes
+    string? Notes,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? UpdatedAt
 );

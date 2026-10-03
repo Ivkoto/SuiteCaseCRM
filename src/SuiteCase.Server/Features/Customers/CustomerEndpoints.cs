@@ -89,7 +89,9 @@ public static class CustomerEndpoints
                 c.Email,
                 c.PhoneNumber,
                 c.DateOfBirth,
-                c.PassportExpiresOn
+                c.PassportExpiresOn,
+                c.CreatedAt,
+                c.UpdatedAt
             })
             .ToListAsync(ct);
 
@@ -103,7 +105,9 @@ public static class CustomerEndpoints
                 c.DateOfBirth,
                 CustomerAgeCalculator.CalculateAge(c.DateOfBirth, today),
                 c.PassportExpiresOn,
-                CustomerPassportHelper.IsValid(c.PassportExpiresOn, today)))
+                CustomerPassportHelper.IsValid(c.PassportExpiresOn, today),
+                c.CreatedAt,
+                c.UpdatedAt))
             .ToList();
 
         var totalPages = (int)Math.Ceiling(totalCount / (double)parameters.PageSize);

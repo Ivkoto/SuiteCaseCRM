@@ -32,6 +32,8 @@ public static class CustomerMapping
             customer.Email,
             customer.PhoneNumber,
             customer.ResidenceCountryCode, Countries.GetName(customer.ResidenceCountryCode),
-            customer.Notes
+            customer.Notes,
+            customer.CreatedAt,
+            customer.UpdatedAt
         );
 }
