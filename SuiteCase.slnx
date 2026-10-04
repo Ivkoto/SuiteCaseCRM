@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Packages.props" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/SuiteCase.Core/SuiteCase.Core.csproj" />
     <Project Path="src/SuiteCase.Server/SuiteCase.Server.csproj" />
