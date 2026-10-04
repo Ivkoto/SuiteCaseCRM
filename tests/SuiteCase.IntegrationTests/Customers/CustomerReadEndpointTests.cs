@@ -20,7 +20,7 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
 
         var response = await client.PostAsJsonAsync("/api/customers",
             CreateRequest(
-                nationalId: "8507120055",
+                nationalId: "8507120058",
                 passportNumber: "PB6543210",
                 passportExpiresOn: passportExpiresBeforeSixMonths),
             TestCancellationToken);
@@ -45,11 +45,11 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
 
         var customers = new[]
         {
-            ("Anna", "Zeta", "1000000001", "PA00001"),
-            ("Anna", "Alpha", "1000000002", "PA00002"),
-            ("Boris", "Beta", "1000000003", "PA00003"),
-            ("Daniel", "Delta", "1000000004", "PA00004"),
-            ("Elena", "Epsilon", "1000000005", "PA00005")
+            ("Анна", "Зета", "9001150017", "PA00001"),
+            ("Анна", "Алфа", "9001150022", "PA00002"),
+            ("Борис", "Бета", "9001150038", "PA00003"),
+            ("Даниел", "Делта", "9001150043", "PA00004"),
+            ("Елена", "Епсилон", "9001150059", "PA00005")
         };
 
         foreach (var (firstName, lastName, nationalId, passportNumber) in customers)
@@ -72,18 +72,18 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
         Assert.Equal(2, firstPage.PageSize);
         Assert.Collection(
             firstPage.Items,
-            customer => Assert.Equal(("Anna", "Alpha"), (customer.FirstName, customer.LastName)),
-            customer => Assert.Equal(("Anna", "Zeta"), (customer.FirstName, customer.LastName)));
+            customer => Assert.Equal(("Анна", "Алфа"), (customer.FirstName, customer.LastName)),
+            customer => Assert.Equal(("Анна", "Зета"), (customer.FirstName, customer.LastName)));
 
         Assert.Equal(2, secondPage.Page);
         Assert.Collection(
             secondPage.Items,
-            customer => Assert.Equal(("Boris", "Beta"), (customer.FirstName, customer.LastName)),
-            customer => Assert.Equal(("Daniel", "Delta"), (customer.FirstName, customer.LastName)));
+            customer => Assert.Equal(("Борис", "Бета"), (customer.FirstName, customer.LastName)),
+            customer => Assert.Equal(("Даниел", "Делта"), (customer.FirstName, customer.LastName)));
 
         Assert.Equal(3, thirdPage.Page);
         var finalCustomer = Assert.Single(thirdPage.Items);
-        Assert.Equal(("Elena", "Epsilon"), (finalCustomer.FirstName, finalCustomer.LastName));
+        Assert.Equal(("Елена", "Епсилон"), (finalCustomer.FirstName, finalCustomer.LastName));
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
         using var client = CreateClient(factory);
 
         await CreateCustomerAsync(client, CreateRequest(
-            nationalId: "1000000031",
+            nationalId: "9001150315",
             passportNumber: "PD00031"));
 
         var result = await GetCustomersAsync(client, "?page=3&pageSize=2");
@@ -112,14 +112,14 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
         using var client = CreateClient(factory);
 
         var firstCustomer = await CreateCustomerAsync(client, CreateRequest(
-            firstName: "Ivan",
-            lastName: "Petrov",
-            nationalId: "1000000032",
+            firstName: "Иван",
+            lastName: "Петров",
+            nationalId: "9001150320",
             passportNumber: "PD00032"));
         var secondCustomer = await CreateCustomerAsync(client, CreateRequest(
-            firstName: "Ivan",
-            lastName: "Petrov",
-            nationalId: "1000000033",
+            firstName: "Иван",
+            lastName: "Петров",
+            nationalId: "9001150336",
             passportNumber: "PD00033"));
 
         var firstPage = await GetCustomersAsync(client, "?page=1&pageSize=1");
@@ -162,7 +162,7 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
             firstName: "Иван",
             middleName: "Георгиев",
             lastName: "Петров",
-            nationalId: "1000000010",
+            nationalId: "9001150104",
             passportNumber: "PB00010"));
 
         foreach (var searchTerm in new[] { "ива", "еор", "етро" })
@@ -186,7 +186,7 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
             firstName: "Александър",
             middleName: "Георгиев",
             lastName: "Димитров",
-            nationalId: "1000000011",
+            nationalId: "9001150110",
             passportNumber: "PB00011"));
 
         var updateResponse = await client.PutAsJsonAsync(
@@ -226,9 +226,9 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
         using var client = CreateClient(factory);
 
         var created = await CreateCustomerAsync(client, CreateRequest(
-            nationalId: "1000000012",
+            nationalId: "9001150125",
             passportNumber: "PB00012",
-            phoneNumber: "(+359) 888-111-222"));
+            phoneNumber: "+359888111222"));
 
         var result = await GetCustomersAsync(client, "?search=888111");
 
@@ -243,18 +243,18 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
         using var client = CreateClient(factory);
 
         var created = await CreateCustomerAsync(client, CreateRequest(
-            nationalId: "1234567890",
+            nationalId: "8501014017",
             passportNumber: "XY987654",
             email: null,
             phoneNumber: null));
 
         var nationalIdResult = await GetCustomersAsync(
             client,
-            $"?search={Uri.EscapeDataString(" 1234567890 ")}");
+            $"?search={Uri.EscapeDataString(" 8501014017 ")}");
         var passportResult = await GetCustomersAsync(
             client,
             $"?search={Uri.EscapeDataString(" xy987654 ")}");
-        var partialNationalIdResult = await GetCustomersAsync(client, "?search=4567");
+        var partialNationalIdResult = await GetCustomersAsync(client, "?search=1014");
         var partialPassportResult = await GetCustomersAsync(client, "?search=9876");
 
         Assert.Equal(created.Id, Assert.Single(nationalIdResult.Items).Id);
@@ -271,10 +271,10 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
 
         var customers = new[]
         {
-            ("Mila", "1000000021", "PC00021"),
-            ("Mina", "1000000022", "PC00022"),
-            ("Mira", "1000000023", "PC00023"),
-            ("Zara", "1000000024", "PC00024")
+            ("Мила", "9001150212", "PC00021"),
+            ("Мина", "9001150228", "PC00022"),
+            ("Мира", "9001150233", "PC00023"),
+            ("Зара", "9001150249", "PC00024")
         };
 
         foreach (var (firstName, nationalId, passportNumber) in customers)
@@ -286,14 +286,14 @@ public sealed class CustomerReadEndpointTests(SqlServerFixture sqlServer)
                 passportNumber: passportNumber));
         }
 
-        var result = await GetCustomersAsync(client, "?page=2&pageSize=2&search=Mi");
+        var result = await GetCustomersAsync(client, $"?page=2&pageSize=2&search={Uri.EscapeDataString("Ми")}");
 
         Assert.Equal(2, result.Page);
         Assert.Equal(2, result.PageSize);
         Assert.Equal(3, result.TotalCount);
         Assert.Equal(2, result.TotalPages);
         var customer = Assert.Single(result.Items);
-        Assert.Equal("Mira", customer.FirstName);
+        Assert.Equal("Мира", customer.FirstName);
     }
 
     [Fact]

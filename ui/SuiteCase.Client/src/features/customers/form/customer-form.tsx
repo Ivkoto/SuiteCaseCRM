@@ -1,7 +1,9 @@
-import { useEffect, useId, useRef, useState, type SubmitEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FocusEvent, type SubmitEvent } from 'react';
 import { SUPPORTED_COUNTRIES } from './countries';
 import {
+  MAXIMUM_NOTES_LENGTH,
   removeError,
+  tryExtractEgnDateOfBirth,
   validateCustomerForm,
   type CustomerFormErrors,
   type CustomerFormField,
@@ -52,6 +54,7 @@ export function CustomerForm({
   const [clientErrors, setClientErrors] = useState<CustomerFormErrors>({});
   const formRef = useRef<HTMLFormElement>(null);
   const wasSubmittingRef = useRef(isSubmitting);
+  const autoDateOfBirthRef = useRef<string | null>(null);
   const idPrefix = useId();
   const errors = { ...serverErrors, ...clientErrors };
   const hasFieldErrors = Object.values(errors).some((message) => message !== undefined);
@@ -71,9 +74,51 @@ export function CustomerForm({
   }, [isSubmitting, serverErrors]);
 
   function updateField(field: CustomerFormField, value: string) {
-    setValues((current) => ({ ...current, [field]: value }));
-    setClientErrors((current) => removeError(current, field));
-    onClearServerError?.(field);
+    const nextValues = { ...values, [field]: value };
+    if (field === 'dateOfBirth') {
+      autoDateOfBirthRef.current = null;
+    } else if (field === 'nationalId'
+      && (values.dateOfBirth.length === 0 || values.dateOfBirth === autoDateOfBirthRef.current)) {
+      const dateOfBirth = tryExtractEgnDateOfBirth(value);
+      nextValues.dateOfBirth = dateOfBirth ?? '';
+      autoDateOfBirthRef.current = dateOfBirth;
+    }
+
+    const dateOfBirthChanged = nextValues.dateOfBirth !== values.dateOfBirth;
+    setValues((current) => ({
+      ...current,
+      [field]: value,
+      ...(dateOfBirthChanged ? { dateOfBirth: nextValues.dateOfBirth } : {}),
+    }));
+    if (dateOfBirthChanged && field !== 'dateOfBirth') {
+      setClientErrors((current) => removeError(current, 'dateOfBirth'));
+      onClearServerError?.('dateOfBirth');
+    }
+
+    if (errors[field] !== undefined) {
+      const message = validateCustomerForm(nextValues, mode)[field];
+      setClientErrors((current) => message === undefined
+        ? removeError(current, field)
+        : { ...current, [field]: message });
+      if (message === undefined) {
+        onClearServerError?.(field);
+      }
+    }
+  }
+
+  function handleBlur(event: FocusEvent<HTMLFormElement>) {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement
+      || target instanceof HTMLSelectElement
+      || target instanceof HTMLTextAreaElement)) {
+      return;
+    }
+
+    const field = target.name as CustomerFormField;
+    const message = validateCustomerForm(values, mode)[field];
+    setClientErrors((current) => message === undefined
+      ? removeError(current, field)
+      : { ...current, [field]: message });
   }
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -91,7 +136,7 @@ export function CustomerForm({
   }
 
   return (
-    <form className="customer-form" ref={formRef} noValidate onSubmit={handleSubmit}>
+    <form className="customer-form" ref={formRef} noValidate onBlur={handleBlur} onSubmit={handleSubmit}>
       {formError !== null && formError !== undefined ? (
         <div className="customer-form-banner customer-form-banner--error" role="alert">
           {formError}
@@ -279,9 +324,13 @@ export function CustomerForm({
             name="notes"
             rows={4}
             value={values.notes}
+            maxLength={MAXIMUM_NOTES_LENGTH}
+            aria-invalid={errors.notes !== undefined}
+            aria-describedby={errorId(idPrefix, 'notes', errors)}
             disabled={isSubmitting}
             onChange={(event) => updateField('notes', event.target.value)}
           />
+          <FieldError id={errorId(idPrefix, 'notes', errors)} message={errors.notes} />
         </label>
       </fieldset>
 

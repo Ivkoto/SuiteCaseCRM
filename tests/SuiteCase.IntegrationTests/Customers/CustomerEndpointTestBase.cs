@@ -37,9 +37,9 @@ public abstract class CustomerEndpointTestBase(SqlServerFixture sqlServer)
         });
 
     protected static CreateCustomerRequest CreateRequest(
-        string firstName = "Ivan",
-        string? middleName = "Georgiev",
-        string lastName = "Petrov",
+        string firstName = "Иван",
+        string? middleName = "Георгиев",
+        string lastName = "Петров",
         string? nationalId = "9001154218",
         string? passportNumber = "PA1234567",
         DateOnly? dateOfBirth = null,

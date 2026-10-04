@@ -31,8 +31,8 @@ public sealed class CustomerCreateEndpointTests(SqlServerFixture sqlServer)
 
         var duplicateResponse = await client.PostAsJsonAsync("/api/customers",
             CreateRequest(
-                firstName: "Petar",
-                lastName: "Ivanov",
+                firstName: "Петър",
+                lastName: "Иванов",
                 nationalId: "9001154218",
                 passportNumber: "PB6543210"),
             TestCancellationToken);
@@ -74,9 +74,9 @@ public sealed class CustomerCreateEndpointTests(SqlServerFixture sqlServer)
 
         var duplicateResponse = await client.PostAsJsonAsync("/api/customers",
             CreateRequest(
-                firstName: "Petar",
-                lastName: "Ivanov",
-                nationalId: "8507120055",
+                firstName: "Петър",
+                lastName: "Иванов",
+                nationalId: "8507120058",
                 passportNumber: " PA1234567 "),
             TestCancellationToken);
 
@@ -165,9 +165,9 @@ public sealed class CustomerCreateEndpointTests(SqlServerFixture sqlServer)
 
         var response = await client.PostAsJsonAsync("/api/customers",
             new CreateCustomerRequest(
-                " Ivan ",
-                " Georgiev ",
-                " Petrov ",
+                " Иван ",
+                " Георгиев ",
+                " Петров ",
                 "9001154218",
                 new DateOnly(1990, 1, 15),
                 " pa1234567 ",
@@ -181,9 +181,9 @@ public sealed class CustomerCreateEndpointTests(SqlServerFixture sqlServer)
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var created = await response.Content.ReadFromJsonAsync<CustomerDetailsResponse>(TestCancellationToken);
         Assert.NotNull(created);
-        Assert.Equal("Ivan", created.FirstName);
-        Assert.Equal("Georgiev", created.MiddleName);
-        Assert.Equal("Petrov", created.LastName);
+        Assert.Equal("Иван", created.FirstName);
+        Assert.Equal("Георгиев", created.MiddleName);
+        Assert.Equal("Петров", created.LastName);
         Assert.Equal("PA1234567", created.PassportNumber);
         Assert.Equal("+359888111222", created.PhoneNumber);
         Assert.Equal("GB", created.ResidenceCountryCode);
@@ -200,9 +200,9 @@ public sealed class CustomerCreateEndpointTests(SqlServerFixture sqlServer)
         var response = await client.PostAsJsonAsync(
             "/api/customers",
             new CreateCustomerRequest(
-                "Ivan",
+                "Иван",
                 null,
-                "Petrov",
+                "Петров",
                 "8501014017",
                 null,
                 "PA1234567",
@@ -220,7 +220,7 @@ public sealed class CustomerCreateEndpointTests(SqlServerFixture sqlServer)
     }
 
     [Fact]
-    public async Task CreateCustomer_ForeignIdentifierPassesEgnChecksum_UsesSuppliedDateOfBirth()
+    public async Task CreateCustomer_ValidEgn_UsesSuppliedDateOfBirth()
     {
         using var factory = CreateFactory();
         using var client = CreateClient(factory);
@@ -228,9 +228,9 @@ public sealed class CustomerCreateEndpointTests(SqlServerFixture sqlServer)
         var response = await client.PostAsJsonAsync(
             "/api/customers",
             new CreateCustomerRequest(
-                "Ivan",
+                "Иван",
                 null,
-                "Petrov",
+                "Петров",
                 "0101050000",
                 new DateOnly(2005, 1, 1),
                 "PA1234567",
@@ -327,8 +327,8 @@ public sealed class CustomerCreateEndpointTests(SqlServerFixture sqlServer)
         var recreateResponse = await client.PostAsJsonAsync(
             "/api/customers",
             CreateRequest(
-                firstName: "Ivan",
-                lastName: "Petrov",
+                firstName: "Иван",
+                lastName: "Петров",
                 nationalId: "9001154218",
                 passportNumber: "PA1234567"),
             TestCancellationToken);

@@ -5,6 +5,8 @@ import type {
 } from '../api/customer-contracts';
 import { DEFAULT_COUNTRY_CODE, SUPPORTED_COUNTRIES } from './countries';
 
+export const MAXIMUM_NOTES_LENGTH = 4000;
+
 export type CustomerFormField = keyof CustomerFormValues;
 export type CustomerFormErrors = Partial<Record<CustomerFormField, string>>;
 
@@ -107,40 +109,46 @@ export function validateCustomerForm(
 ): CustomerFormErrors {
   const errors: CustomerFormErrors = {};
 
-  validateRequiredName(values.firstName, 'First name', 'firstName', errors);
-  validateOptionalLength(values.middleName, 'Middle name', 'middleName', 2, 100, errors);
-  validateRequiredName(values.lastName, 'Last name', 'lastName', errors);
+  const bulgarianLetter = /^[А-ЪЬЮЯа-ъьюяЍѝ]$/;
+  const latinLetter = /^[A-Za-z]$/;
+
+  validateName(values.firstName, 'First name', 'firstName', true, bulgarianLetter, 'Bulgarian', errors);
+  validateName(values.middleName, 'Middle name', 'middleName', false, bulgarianLetter, 'Bulgarian', errors);
+  validateName(values.lastName, 'Last name', 'lastName', true, bulgarianLetter, 'Bulgarian', errors);
 
   if (mode === 'edit') {
-    validateOptionalLength(
+    validateName(
       values.firstNameLatin,
       'Latin first name',
       'firstNameLatin',
-      2,
-      100,
+      false,
+      latinLetter,
+      'English',
       errors,
     );
-    validateOptionalLength(
+    validateName(
       values.middleNameLatin,
       'Latin middle name',
       'middleNameLatin',
-      2,
-      100,
+      false,
+      latinLetter,
+      'English',
       errors,
     );
-    validateOptionalLength(
+    validateName(
       values.lastNameLatin,
       'Latin last name',
       'lastNameLatin',
-      2,
-      100,
+      false,
+      latinLetter,
+      'English',
       errors,
     );
   }
 
   const nationalId = values.nationalId.trim();
-  if (nationalId.length > 0 && nationalId.length !== 10) {
-    errors.nationalId = 'National ID must contain exactly 10 characters.';
+  if (nationalId.length > 0 && tryExtractEgnDateOfBirth(nationalId) === null) {
+    errors.nationalId = 'Enter a valid 10-digit EGN.';
   }
 
   validateOptionalLength(
@@ -155,12 +163,19 @@ export function validateCustomerForm(
   const email = values.email.trim();
   if (email.length > 254) {
     errors.email = 'Email must not exceed 254 characters.';
-  } else if (email.length > 0 && !/^[^\s@]+@[^\s@]+$/.test(email)) {
-    errors.email = 'Enter a valid email address.';
+  } else if (email.length > 0 && !/^[^\s@]+@[^.\s@]+(?:\.[^.\s@]+)+$/.test(email)) {
+    errors.email = 'Enter a valid email address, such as name@example.com.';
   }
 
-  if (values.phoneNumber.trim().length > 20) {
+  const phoneNumber = values.phoneNumber.trim();
+  if (phoneNumber.length > 20) {
     errors.phoneNumber = 'Phone number must not exceed 20 characters.';
+  } else if (phoneNumber.length > 0 && !/^\+?[0-9]+$/.test(phoneNumber)) {
+    errors.phoneNumber = 'Phone number must contain only digits and an optional leading +.';
+  }
+
+  if (values.notes.trim().length > MAXIMUM_NOTES_LENGTH) {
+    errors.notes = `Notes must not exceed ${MAXIMUM_NOTES_LENGTH} characters.`;
   }
 
   const countryCode = values.residenceCountryCode.trim().toUpperCase();
@@ -189,18 +204,62 @@ function optionalUppercase(value: string): string | null {
   return trimmed === null ? null : trimmed.toUpperCase();
 }
 
-function validateRequiredName(
+function validateName(
   value: string,
   label: string,
-  field: 'firstName' | 'lastName',
+  field: CustomerFormField,
+  required: boolean,
+  pattern: RegExp,
+  alphabet: 'Bulgarian' | 'English',
   errors: CustomerFormErrors,
 ) {
   const trimmed = value.trim();
   if (trimmed.length === 0) {
-    errors[field] = `${label} is required.`;
+    if (required) {
+      errors[field] = `${label} is required.`;
+    }
   } else if (trimmed.length < 2 || trimmed.length > 100) {
     errors[field] = `${label} must contain between 2 and 100 characters.`;
+  } else if (!trimmed.split(/[ -]/).every((part) => part.length > 0
+    && Array.from(part).every((letter) => pattern.test(letter)))) {
+    errors[field] = `${label} must contain only ${alphabet} letters. Single spaces or hyphens between name parts are allowed.`;
   }
+}
+
+export function tryExtractEgnDateOfBirth(value: string): string | null {
+  const normalized = value.trim();
+  if (!/^[0-9]{10}$/.test(normalized)) {
+    return null;
+  }
+
+  let year = Number(normalized.slice(0, 2));
+  let month = Number(normalized.slice(2, 4));
+  const day = Number(normalized.slice(4, 6));
+  if (month >= 1 && month <= 12) {
+    year += 1900;
+  } else if (month >= 21 && month <= 32) {
+    year += 1800;
+    month -= 20;
+  } else if (month >= 41 && month <= 52) {
+    year += 2000;
+    month -= 40;
+  } else {
+    return null;
+  }
+
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  if (day < 1 || day > daysInMonth) {
+    return null;
+  }
+
+  const weights = [2, 4, 8, 5, 10, 9, 7, 3, 6];
+  const sum = weights.reduce((total, weight, index) => total + Number(normalized[index]) * weight, 0);
+  const remainder = sum % 11;
+  if (Number(normalized[9]) !== (remainder === 10 ? 0 : remainder)) {
+    return null;
+  }
+
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
 function validateOptionalLength(

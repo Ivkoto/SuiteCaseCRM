@@ -24,9 +24,9 @@ public sealed class CustomerUpdateEndpointTests(SqlServerFixture sqlServer)
             passportNumber: "PA1234567"));
 
         var secondCustomer = await CreateCustomerAsync(client, CreateRequest(
-            firstName: "Petar",
-            lastName: "Ivanov",
-            nationalId: "8507120055",
+            firstName: "Петър",
+            lastName: "Иванов",
+            nationalId: "8507120058",
             passportNumber: "PB6543210"));
 
         var response = await client.PutAsJsonAsync($"/api/customers/{secondCustomer.Id}",
@@ -68,9 +68,9 @@ public sealed class CustomerUpdateEndpointTests(SqlServerFixture sqlServer)
             passportNumber: "PA1234567"));
 
         var secondCustomer = await CreateCustomerAsync(client, CreateRequest(
-            firstName: "Petar",
-            lastName: "Ivanov",
-            nationalId: "8507120055",
+            firstName: "Петър",
+            lastName: "Иванов",
+            nationalId: "8507120058",
             passportNumber: "PB6543210"));
 
         var response = await client.PutAsJsonAsync($"/api/customers/{secondCustomer.Id}",
@@ -179,7 +179,7 @@ public sealed class CustomerUpdateEndpointTests(SqlServerFixture sqlServer)
     }
 
     [Fact]
-    public async Task UpdateCustomer_ForeignIdentifierPassesEgnChecksum_PreservesSuppliedDateOfBirth()
+    public async Task UpdateCustomer_ValidEgn_PreservesSuppliedDateOfBirth()
     {
         using var factory = CreateFactory();
         using var client = CreateClient(factory);
@@ -337,9 +337,9 @@ public sealed class CustomerUpdateEndpointTests(SqlServerFixture sqlServer)
 
         var response = await client.PutAsJsonAsync($"/api/customers/{created.Id}",
             new UpdateCustomerRequest(
-                " Petar ",
-                " Nikolov ",
-                " Ivanov ",
+                " Петър ",
+                " Николов ",
+                " Иванов ",
                 " Petar ",
                 " Nikolov ",
                 " Ivanov ",
@@ -356,9 +356,9 @@ public sealed class CustomerUpdateEndpointTests(SqlServerFixture sqlServer)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var updated = await response.Content.ReadFromJsonAsync<CustomerDetailsResponse>(TestCancellationToken);
         Assert.NotNull(updated);
-        Assert.Equal("Petar", updated.FirstName);
-        Assert.Equal("Nikolov", updated.MiddleName);
-        Assert.Equal("Ivanov", updated.LastName);
+        Assert.Equal("Петър", updated.FirstName);
+        Assert.Equal("Николов", updated.MiddleName);
+        Assert.Equal("Иванов", updated.LastName);
         Assert.Equal("Petar", updated.FirstNameLatin);
         Assert.Equal("Nikolov", updated.MiddleNameLatin);
         Assert.Equal("Ivanov", updated.LastNameLatin);
@@ -377,7 +377,7 @@ public sealed class CustomerUpdateEndpointTests(SqlServerFixture sqlServer)
 
         var response = await client.PutAsJsonAsync("/api/customers/99999",
             new UpdateCustomerRequest(
-                "Ivan", null, "Petrov", null, null, null,
+                "Иван", null, "Петров", null, null, null,
                 null, new DateOnly(1990, 1, 15), null, null, null, null, null, null),
             TestCancellationToken);
 

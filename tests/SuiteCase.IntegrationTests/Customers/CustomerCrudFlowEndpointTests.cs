@@ -24,9 +24,9 @@ public sealed class CustomerCrudFlowEndpointTests(SqlServerFixture sqlServer)
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var created = await response.Content.ReadFromJsonAsync<CustomerDetailsResponse>(TestCancellationToken);
         Assert.NotNull(created);
-        Assert.Equal("Ivan", created.FirstName);
-        Assert.Equal("Georgiev", created.MiddleName);
-        Assert.Equal("Petrov", created.LastName);
+        Assert.Equal("Иван", created.FirstName);
+        Assert.Equal("Георгиев", created.MiddleName);
+        Assert.Equal("Петров", created.LastName);
         Assert.Null(created.FirstNameLatin);
         Assert.Null(created.MiddleNameLatin);
         Assert.Null(created.LastNameLatin);
@@ -49,8 +49,8 @@ public sealed class CustomerCrudFlowEndpointTests(SqlServerFixture sqlServer)
         Assert.Equal(1, list.TotalPages);
         var listCustomer = Assert.Single(list.Items);
         Assert.Equal(created.Id, listCustomer.Id);
-        Assert.Equal("Ivan", listCustomer.FirstName);
-        Assert.Equal("Petrov", listCustomer.LastName);
+        Assert.Equal("Иван", listCustomer.FirstName);
+        Assert.Equal("Петров", listCustomer.LastName);
         Assert.Equal("ivan.petrov@example.com", listCustomer.Email);
         Assert.Equal("+359888111222", listCustomer.PhoneNumber);
         Assert.Equal(new DateOnly(1990, 1, 15), listCustomer.DateOfBirth);
@@ -72,9 +72,9 @@ public sealed class CustomerCrudFlowEndpointTests(SqlServerFixture sqlServer)
         var beforeUpdate = DateTimeOffset.UtcNow;
         var updateResponse = await client.PutAsJsonAsync($"/api/customers/{created.Id}",
             new UpdateCustomerRequest(
-                "Ivan",
-                "Nikolov",
-                "Petrov",
+                "Иван",
+                "Николов",
+                "Петров",
                 "Ivan",
                 "Nikolov",
                 "Petrov",
@@ -92,7 +92,7 @@ public sealed class CustomerCrudFlowEndpointTests(SqlServerFixture sqlServer)
         var updated = await updateResponse.Content.ReadFromJsonAsync<CustomerDetailsResponse>(
             TestCancellationToken);
         Assert.NotNull(updated);
-        Assert.Equal("Nikolov", updated.MiddleName);
+        Assert.Equal("Николов", updated.MiddleName);
         Assert.Equal("Updated notes", updated.Notes);
         Assert.Equal("9001154218", updated.NationalId);
         Assert.Equal("GB", updated.ResidenceCountryCode);

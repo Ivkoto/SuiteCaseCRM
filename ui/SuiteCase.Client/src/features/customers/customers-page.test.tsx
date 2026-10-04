@@ -10,8 +10,8 @@ import { CustomersPage } from './customers-page';
 
 const FIRST_CUSTOMER: CustomerListItem = {
   id: 41,
-  firstName: 'Ada',
-  lastName: 'Lovelace',
+  firstName: 'Ада',
+  lastName: 'Лъвлейс',
   email: 'ada@example.test',
   phoneNumber: '+359000000001',
   dateOfBirth: '1815-12-10',
@@ -38,13 +38,13 @@ const SECOND_CUSTOMER: CustomerListItem = {
 
 const FIRST_CUSTOMER_DETAILS: CustomerDetails = {
   id: 41,
-  firstName: 'Ada',
+  firstName: 'Ада',
   middleName: null,
-  lastName: 'Lovelace',
+  lastName: 'Лъвлейс',
   firstNameLatin: 'Ada',
   middleNameLatin: null,
   lastNameLatin: 'Lovelace',
-  nationalId: 'ZX00000001',
+  nationalId: '1532100016',
   dateOfBirth: '1815-12-10',
   passportNumber: 'PX90001',
   passportExpiresOn: '2030-01-01',
@@ -76,10 +76,10 @@ describe('CustomersPage', () => {
 
     expect(screen.getByRole('status')).toHaveTextContent('Loading customer directory');
     expect(await screen.findByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'ada@example.test' })).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'Select Ada Lovelace' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Select Ада Лъвлейс' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Quick Actions', level: 3 })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add New Customer' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Add to Group' })).not.toBeInTheDocument();
@@ -120,7 +120,7 @@ describe('CustomersPage', () => {
     render(<CustomersPage />);
 
     const firstCustomerCheckbox = await screen.findByRole('checkbox', {
-      name: 'Select Ada Lovelace',
+      name: 'Select Ада Лъвлейс',
     });
     const secondCustomerCheckbox = screen.getByRole('checkbox', {
       name: 'Select Grace Hopper',
@@ -176,7 +176,7 @@ describe('CustomersPage', () => {
 
     render(<CustomersPage />);
 
-    await screen.findByRole('button', { name: 'View details for Ada Lovelace' });
+    await screen.findByRole('button', { name: 'View details for Ада Лъвлейс' });
     await user.click(screen.getByRole('button', { name: 'Next' }));
     await screen.findByRole('button', { name: 'View details for Grace Hopper' });
 
@@ -204,7 +204,7 @@ describe('CustomersPage', () => {
 
     render(<CustomersPage />);
 
-    await screen.findByRole('button', { name: 'View details for Ada Lovelace' });
+    await screen.findByRole('button', { name: 'View details for Ада Лъвлейс' });
     const searchInput = screen.getByRole('searchbox', { name: 'Search customers' });
     await user.type(searchInput, 'Grace');
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -220,7 +220,7 @@ describe('CustomersPage', () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     expect(fetchMock.mock.calls[2]?.[0]).toBe('/api/customers?page=1&pageSize=13');
     expect(await screen.findByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     })).toBeInTheDocument();
   });
 
@@ -233,7 +233,7 @@ describe('CustomersPage', () => {
 
     render(<CustomersPage />);
 
-    await screen.findByRole('button', { name: 'View details for Ada Lovelace' });
+    await screen.findByRole('button', { name: 'View details for Ада Лъвлейс' });
     const searchInput = screen.getByRole('searchbox', { name: 'Search customers' });
     await user.type(searchInput, 'Grace{Enter}');
     await screen.findByRole('button', { name: 'View details for Grace Hopper' });
@@ -244,7 +244,7 @@ describe('CustomersPage', () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     expect(fetchMock.mock.calls[2]?.[0]).toBe('/api/customers?page=1&pageSize=13');
     expect(await screen.findByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     })).toBeInTheDocument();
   });
 
@@ -256,7 +256,7 @@ describe('CustomersPage', () => {
 
     render(<CustomersPage />);
 
-    await screen.findByRole('button', { name: 'View details for Ada Lovelace' });
+    await screen.findByRole('button', { name: 'View details for Ада Лъвлейс' });
     await user.click(screen.getByRole('button', { name: 'Next' }));
     await screen.findByRole('button', { name: 'View details for Grace Hopper' });
 
@@ -312,7 +312,7 @@ describe('CustomersPage', () => {
     await user.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(await screen.findByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -338,9 +338,9 @@ describe('CustomersPage', () => {
     const lastName = screen.getByRole('textbox', { name: /Last name/ });
     const nationalId = screen.getByRole('textbox', { name: 'National ID' });
     expect(firstName).toHaveFocus();
-    await user.type(firstName, 'Test');
-    await user.type(lastName, 'Customer');
-    await user.type(nationalId, 'ZX00000001');
+    await user.type(firstName, 'Тест');
+    await user.type(lastName, 'Клиент');
+    await user.type(nationalId, '1532100016');
     await user.click(screen.getByRole('button', { name: 'Create customer' }));
 
     const duplicateError = await screen.findByText(
@@ -352,7 +352,7 @@ describe('CustomersPage', () => {
     await waitFor(() => expect(nationalId).toHaveFocus());
     expect(nationalId).toHaveAttribute('aria-invalid', 'true');
     expect(nationalId).toHaveAccessibleDescription(duplicateError.textContent ?? '');
-    expect(nationalId).toHaveValue('ZX00000001');
+    expect(nationalId).toHaveValue('1532100016');
     expect(screen.getByRole('dialog', { name: 'Add new customer' })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -371,15 +371,15 @@ describe('CustomersPage', () => {
     const dialog = screen.getByRole('dialog', { name: 'Add new customer' });
     const firstName = within(dialog).getByRole('textbox', { name: /First name/ });
     const lastName = within(dialog).getByRole('textbox', { name: /Last name/ });
-    await user.type(firstName, 'Test');
-    await user.type(lastName, 'Customer');
+    await user.type(firstName, 'Тест');
+    await user.type(lastName, 'Клиент');
     await user.click(within(dialog).getByRole('button', { name: 'Create customer' }));
 
     expect(await within(dialog).findByRole('alert')).toHaveTextContent(
       'The request could not be completed. Try again.',
     );
-    expect(firstName).toHaveValue('Test');
-    expect(lastName).toHaveValue('Customer');
+    expect(firstName).toHaveValue('Тест');
+    expect(lastName).toHaveValue('Клиент');
     expect(within(dialog).getByRole('button', { name: 'Create customer' })).toBeEnabled();
     expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
   });
@@ -388,7 +388,7 @@ describe('CustomersPage', () => {
     const user = userEvent.setup();
     fetchMock
       .mockResolvedValueOnce(jsonResponse(customerPage([])))
-      .mockResolvedValueOnce(jsonResponse({ id: 43, firstName: 'Test', lastName: 'Customer' }, 201));
+      .mockResolvedValueOnce(jsonResponse({ id: 43, firstName: 'Тест', lastName: 'Клиент' }, 201));
 
     render(<CustomersPage />);
 
@@ -398,16 +398,16 @@ describe('CustomersPage', () => {
     const dialog = screen.getByRole('dialog', { name: 'Add new customer' });
     const firstName = within(dialog).getByRole('textbox', { name: /First name/ });
     const lastName = within(dialog).getByRole('textbox', { name: /Last name/ });
-    await user.type(firstName, 'Test');
-    await user.type(lastName, 'Customer');
+    await user.type(firstName, 'Тест');
+    await user.type(lastName, 'Клиент');
     await user.click(within(dialog).getByRole('button', { name: 'Create customer' }));
 
     expect(await within(dialog).findByRole('alert')).toHaveTextContent(
       'The server returned an unexpected response, so the result could not be confirmed. '
       + 'The change may already have been saved. Check the customer directory before submitting again.',
     );
-    expect(firstName).toHaveValue('Test');
-    expect(lastName).toHaveValue('Customer');
+    expect(firstName).toHaveValue('Тест');
+    expect(lastName).toHaveValue('Клиент');
     expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
   });
 
@@ -425,16 +425,16 @@ describe('CustomersPage', () => {
     const dialog = screen.getByRole('dialog', { name: 'Add new customer' });
     const firstName = within(dialog).getByRole('textbox', { name: /First name/ });
     const lastName = within(dialog).getByRole('textbox', { name: /Last name/ });
-    await user.type(firstName, 'Test');
-    await user.type(lastName, 'Customer');
+    await user.type(firstName, 'Тест');
+    await user.type(lastName, 'Клиент');
     await user.click(within(dialog).getByRole('button', { name: 'Create customer' }));
 
     expect(await within(dialog).findByRole('alert')).toHaveTextContent(
       'The request could not be completed, so the result could not be confirmed. '
       + 'The change may already have been saved. Check the customer directory before submitting again.',
     );
-    expect(firstName).toHaveValue('Test');
-    expect(lastName).toHaveValue('Customer');
+    expect(firstName).toHaveValue('Тест');
+    expect(lastName).toHaveValue('Клиент');
     expect(within(dialog).getByRole('button', { name: 'Create customer' })).toBeEnabled();
     expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
   });
@@ -449,9 +449,9 @@ describe('CustomersPage', () => {
     render(<CustomersPage />);
 
     await user.click(await screen.findByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     }));
-    const dialog = await screen.findByRole('dialog', { name: 'Ada Lovelace' });
+    const dialog = await screen.findByRole('dialog', { name: 'Ада Лъвлейс' });
     await user.click(within(dialog).getByRole('button', { name: 'Edit profile' }));
     const email = within(dialog).getByRole('textbox', { name: 'Email' });
     await user.clear(email);
@@ -479,9 +479,9 @@ describe('CustomersPage', () => {
     render(<CustomersPage />);
 
     await user.click(await screen.findByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     }));
-    const dialog = await screen.findByRole('dialog', { name: 'Ada Lovelace' });
+    const dialog = await screen.findByRole('dialog', { name: 'Ада Лъвлейс' });
     await user.click(within(dialog).getByRole('button', { name: 'Delete customer' }));
     const deleteHeading = within(dialog).getByRole('heading', {
       name: 'Delete this customer?',
@@ -499,7 +499,7 @@ describe('CustomersPage', () => {
       'The request could not be completed. Try again.',
     );
     expect(confirmDelete).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'View details for Ada Lovelace' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'View details for Ада Лъвлейс' })).toBeVisible();
     expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'DELETE')).toHaveLength(1);
   });
 
@@ -524,10 +524,10 @@ describe('CustomersPage', () => {
     render(<CustomersPage />);
 
     await user.click(await screen.findByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     }));
 
-    const detailsDialog = await screen.findByRole('dialog', { name: 'Ada Lovelace' });
+    const detailsDialog = await screen.findByRole('dialog', { name: 'Ада Лъвлейс' });
     expect(within(detailsDialog).getByText('Prefers written correspondence.')).toBeInTheDocument();
     expect(fetchMock.mock.calls[1]?.[0]).toBe('/api/customers/41');
 
@@ -542,13 +542,13 @@ describe('CustomersPage', () => {
     const putCall = fetchMock.mock.calls.find(([, options]) => options?.method === 'PUT');
     expect(putCall?.[0]).toBe('/api/customers/41');
     expect(JSON.parse(String(putCall?.[1]?.body))).toEqual({
-      firstName: 'Ada',
+      firstName: 'Ада',
       middleName: null,
-      lastName: 'Lovelace',
+      lastName: 'Лъвлейс',
       firstNameLatin: 'Ada',
       middleNameLatin: null,
       lastNameLatin: 'Lovelace',
-      nationalId: 'ZX00000001',
+      nationalId: '1532100016',
       dateOfBirth: '1815-12-10',
       passportNumber: 'PX90001',
       passportExpiresOn: '2030-01-01',
@@ -592,7 +592,7 @@ describe('CustomersPage', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       'Customer #41 deleted from active records.',
     );
-    expect(screen.queryByRole('dialog', { name: 'Ada Lovelace' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Ада Лъвлейс' })).not.toBeInTheDocument();
     const deleteCall = fetchMock.mock.calls.find(([, options]) => options?.method === 'DELETE');
     expect(deleteCall?.[0]).toBe('/api/customers/41');
     expect(fetchMock.mock.calls[5]?.[0]).toBe('/api/customers?page=1&pageSize=13');
@@ -615,10 +615,10 @@ describe('CustomersPage', () => {
     render(<CustomersPage />);
 
     await user.click(await screen.findByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     }));
 
-    const detailsDialog = await screen.findByRole('dialog', { name: 'Ada Lovelace' });
+    const detailsDialog = await screen.findByRole('dialog', { name: 'Ада Лъвлейс' });
     const editButton = within(detailsDialog).getByRole('button', { name: 'Edit profile' });
     const deleteButton = within(detailsDialog).getByRole('button', { name: 'Delete customer' });
     await user.click(deleteButton);
@@ -678,10 +678,10 @@ describe('CustomersPage', () => {
     await screen.findByRole('button', { name: 'View details for Grace Hopper' });
     await user.click(screen.getByRole('button', { name: 'Next' }));
     await user.click(await screen.findByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     }));
 
-    const detailsDialog = await screen.findByRole('dialog', { name: 'Ada Lovelace' });
+    const detailsDialog = await screen.findByRole('dialog', { name: 'Ада Лъвлейс' });
     await user.click(within(detailsDialog).getByRole('button', { name: 'Delete customer' }));
     const deleteConfirmationHeading = within(detailsDialog).getByRole('heading', {
       name: 'Delete this customer?',
@@ -697,9 +697,9 @@ describe('CustomersPage', () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(5));
     expect(screen.getByText('Loading customer directory…')).toBeInTheDocument();
     expect(screen.queryByRole('button', {
-      name: 'View details for Ada Lovelace',
+      name: 'View details for Ада Лъвлейс',
     })).not.toBeInTheDocument();
-    expect(screen.queryByRole('dialog', { name: 'Ada Lovelace' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Ада Лъвлейс' })).not.toBeInTheDocument();
     expect(fetchMock.mock.calls[4]?.[0]).toBe('/api/customers?page=1&pageSize=13');
 
     resolvePreviousPage(jsonResponse(customerPage([SECOND_CUSTOMER], 1, 1, 13)));
