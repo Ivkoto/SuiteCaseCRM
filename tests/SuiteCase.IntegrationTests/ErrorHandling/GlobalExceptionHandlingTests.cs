@@ -39,8 +39,8 @@ public sealed class GlobalExceptionHandlingTests(SqlServerFixture sqlServer)
 
         // This triggers Hash() which will throw
         var request = new CreateCustomerRequest(
-            "Test", null, "Customer",
-            "THROW12345",
+            "Тест", null, "Клиент",
+            "9001154218",
             new DateOnly(1990, 1, 1),
             null, null, null, null, null, null);
 

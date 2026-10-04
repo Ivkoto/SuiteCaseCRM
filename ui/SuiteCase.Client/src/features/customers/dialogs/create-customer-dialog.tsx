@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createCustomer } from '../api/customers-api';
 import type { CustomerDetails } from '../api/customer-contracts';
 import { CustomerForm } from '../form/customer-form';
@@ -54,12 +54,6 @@ export function CreateCustomerDialog({ onClose, onCreated }: CreateCustomerDialo
     }
   }
 
-  function handleBackdropClick(event: MouseEvent<HTMLDialogElement>) {
-    if (event.target === event.currentTarget && !isSubmitting) {
-      onClose();
-    }
-  }
-
   function clearFieldError(field: CustomerFormField) {
     setFieldErrors((current) => removeError(current, field));
   }
@@ -75,7 +69,6 @@ export function CreateCustomerDialog({ onClose, onCreated }: CreateCustomerDialo
           onClose();
         }
       }}
-      onMouseDown={handleBackdropClick}
     >
       <section className="customer-dialog-surface">
         <header className="customer-dialog-header">

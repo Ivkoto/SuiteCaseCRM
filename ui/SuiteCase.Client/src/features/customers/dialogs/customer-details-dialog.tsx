@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode, } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode, } from 'react';
 import { deleteCustomer, getCustomer, updateCustomer } from '../api/customers-api';
 import type { CustomerDetails } from '../api/customer-contracts';
 import { CustomerForm } from '../form/customer-form';
@@ -197,12 +197,6 @@ export function CustomerDetailsDialog({ customerId, onClose, onChanged, onDelete
     setIsDeleteConfirmationVisible(false);
   }
 
-  function handleBackdropClick(event: MouseEvent<HTMLDialogElement>) {
-    if (event.target === event.currentTarget && !isBusy) {
-      onClose();
-    }
-  }
-
   const customer = detailsState.status === 'success' ? detailsState.customer : null;
   const customerName = customer === null ? 'Customer details' : formatFullName(customer);
 
@@ -217,7 +211,6 @@ export function CustomerDetailsDialog({ customerId, onClose, onChanged, onDelete
           onClose();
         }
       }}
-      onMouseDown={handleBackdropClick}
     >
       <section className="customer-dialog-surface customer-drawer-surface">
         <header className="customer-dialog-header customer-drawer-header">
