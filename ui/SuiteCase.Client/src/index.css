@@ -18,76 +18,70 @@
 :root,
 :root[data-theme='light'] {
   color-scheme: light;
-  --app-page-bg: #f4f7fa;
-  --app-page-background:
-    radial-gradient(circle at 20% -10%, rgba(69, 224, 207, 0.18), transparent 36%),
-    radial-gradient(circle at 85% -25%, rgba(255, 107, 71, 0.1), transparent 42%),
-    #f4f7fa;
+  --app-page-bg: #f3f6f2;
+  --app-page-background: #f3f6f2;
   --app-surface: #ffffff;
   --app-surface-raised: #ffffff;
-  --app-surface-subtle: #f4f7fa;
-  --app-surface-hover: rgba(14, 156, 141, 0.07);
-  --app-surface-selected: rgba(14, 156, 141, 0.12);
-  --app-surface-disabled: #edf1f4;
-  --app-table-header: rgba(244, 247, 250, 0.96);
-  --app-text: #0d1320;
-  --app-text-secondary: #44546a;
-  --app-text-muted: #5b6b80;
-  --app-border-soft: rgba(13, 19, 32, 0.06);
-  --app-border: rgba(13, 19, 32, 0.1);
-  --app-border-strong: rgba(13, 19, 32, 0.2);
-  --app-primary: #0e9c8d;
-  --app-primary-text: #0b7f74;
-  --app-primary-hover: #0d8f82;
-  --app-primary-soft: rgba(14, 156, 141, 0.12);
-  --app-on-primary: #070b14;
+  --app-surface-subtle: #f7f9f6;
+  --app-surface-hover: rgba(18, 106, 140, 0.05);
+  --app-surface-selected: rgba(18, 106, 140, 0.1);
+  --app-surface-disabled: #eef1ed;
+  --app-table-header: rgba(245, 248, 244, 0.96);
+  --app-text: #1c252b;
+  --app-text-secondary: #3f4650;
+  --app-text-muted: #626b70;
+  --app-border-soft: rgba(36, 54, 71, 0.06);
+  --app-border: rgba(36, 54, 71, 0.1);
+  --app-border-strong: rgba(36, 54, 71, 0.24);
+  --app-primary: #145b8f;
+  --app-primary-text: #11458c;
+  --app-primary-hover: #11458c;
+  --app-primary-soft: rgba(18, 106, 140, 0.1);
+  --app-on-primary: #ffffff;
   --app-on-danger: #ffffff;
   --app-on-success: #ffffff;
-  --app-focus-ring: rgba(14, 156, 141, 0.38);
-  --app-selection-text: #0d1320;
-  --app-selection-bg: rgba(14, 156, 141, 0.22);
+  --app-focus-ring: rgba(18, 106, 140, 0.38);
+  --app-selection-text: #1c252b;
+  --app-selection-bg: rgba(18, 106, 140, 0.2);
   --app-input-bg: #ffffff;
-  --app-input-invalid-bg: #fffafb;
-  --app-glass-bg: rgba(255, 255, 255, 0.72);
-  --app-glass-strong: rgba(255, 255, 255, 0.94);
-  --app-glass-border: rgba(13, 19, 32, 0.12);
-  --app-shadow-sm: 0 1px 0 rgba(13, 19, 32, 0.08);
-  --app-shadow-panel:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 1px 0 0 rgba(255, 255, 255, 0.5),
-    0 8px 24px rgba(13, 19, 32, 0.06);
-  --app-shadow-dialog: 0 1.4rem 4rem rgba(7, 11, 20, 0.28);
-  --app-dialog-backdrop: rgba(7, 11, 20, 0.58);
-  --app-success-text: #24683f;
-  --app-success-bg: #edf9f1;
-  --app-success-border: #b7dfc5;
-  --app-success-solid: #3a8c5a;
-  --app-warning-text: #a53e23;
-  --app-warning-bg: rgba(225, 78, 43, 0.1);
-  --app-warning-border: rgba(225, 78, 43, 0.34);
-  --app-danger-text: #8f1f3b;
-  --app-danger-bg: #fff2f5;
-  --app-danger-border: #e2a9b7;
-  --app-danger-solid: #a63250;
-  --app-danger-hover: #8f2742;
-  --app-neutral-text: #5b6b80;
-  --app-neutral-bg: #f0f3f5;
-  --app-neutral-border: rgba(13, 19, 32, 0.14);
-  --app-sidebar-background:
-    radial-gradient(circle at 50% -10%, rgba(69, 224, 207, 0.14), transparent 36%),
-    linear-gradient(180deg, #112d42 0%, #070b14 100%);
-  --app-sidebar-text: #e9f0f7;
-  --app-sidebar-muted: #8fa0b5;
-  --app-sidebar-border: rgba(255, 255, 255, 0.1);
-  --app-sidebar-control: rgba(255, 255, 255, 0.04);
-  --app-sidebar-control-hover: rgba(69, 224, 207, 0.1);
-  --app-sidebar-active: rgba(69, 224, 207, 0.13);
-  --app-sidebar-active-border: rgba(69, 224, 207, 0.45);
-  --app-sidebar-accent: #45e0cf;
-  --app-brand-surface: rgba(255, 255, 255, 0.93);
+  --app-input-invalid-bg: #fff8f5;
+  --app-glass-bg: rgba(255, 255, 255, 0.84);
+  --app-glass-strong: rgba(255, 255, 255, 0.97);
+  --app-glass-border: rgba(36, 54, 71, 0.1);
+  --app-shadow-sm: 0 1px 2px rgba(36, 54, 71, 0.04);
+  --app-shadow-panel: 0 4px 18px rgba(36, 54, 71, 0.04);
+  --app-shadow-dialog: 0 1.4rem 4rem rgba(36, 54, 71, 0.22);
+  --app-dialog-backdrop: rgba(28, 37, 43, 0.5);
+  --app-success-text: #1e7153;
+  --app-success-bg: #e8faf0;
+  --app-success-border: #bbe7cf;
+  --app-success-solid: #247b56;
+  --app-warning-text: #8a5100;
+  --app-warning-bg: rgba(217, 149, 26, 0.1);
+  --app-warning-border: rgba(217, 149, 26, 0.38);
+  --app-danger-text: #b6372e;
+  --app-danger-bg: #fff3ef;
+  --app-danger-border: rgba(222, 73, 60, 0.38);
+  --app-danger-solid: #b6372e;
+  --app-danger-hover: #9f3028;
+  --app-neutral-text: #626b70;
+  --app-neutral-bg: #f5f7f4;
+  --app-neutral-border: rgba(36, 54, 71, 0.14);
+  --app-sidebar-background: #f3f6f1;
+  --app-sidebar-text: #243647;
+  --app-sidebar-muted: #3f4650;
+  --app-sidebar-border: rgba(36, 54, 71, 0.08);
+  --app-sidebar-control: rgba(255, 255, 255, 0.7);
+  --app-sidebar-control-hover: rgba(18, 106, 140, 0.08);
+  --app-sidebar-active: linear-gradient(100deg, #126a8c 0%, #11458c 100%);
+  --app-sidebar-active-text: #ffffff;
+  --app-sidebar-active-hover: linear-gradient(100deg, #105e7d 0%, #0f3d7c 100%);
+  --app-sidebar-active-border: #145b8f;
+  --app-sidebar-accent: #126a8c;
+  --app-brand-surface: rgba(255, 255, 255, 0.96);
   --app-brand-text: #0d1320;
   --app-brand-muted: #5b6b80;
-  --app-brand-shadow: 0 0.45rem 1.6rem rgba(0, 10, 21, 0.18);
+  --app-brand-shadow: 0 2px 12px rgba(36, 54, 71, 0.04);
   font-family: "Ubuntu Sans", ui-sans-serif, system-ui, sans-serif;
   color: var(--app-text);
   background: var(--app-page-bg);
@@ -99,43 +93,44 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --app-page-bg: #070b14;
+  --app-page-bg: #1d1e22;
   --app-page-background:
-    radial-gradient(circle at 20% -10%, rgba(69, 224, 207, 0.1), transparent 36%),
-    radial-gradient(circle at 85% -25%, rgba(157, 123, 255, 0.08), transparent 42%),
-    #070b14;
-  --app-surface: #0d1320;
-  --app-surface-raised: #111827;
-  --app-surface-subtle: #121b2b;
-  --app-surface-hover: rgba(69, 224, 207, 0.08);
-  --app-surface-selected: rgba(69, 224, 207, 0.14);
-  --app-surface-disabled: rgba(255, 255, 255, 0.06);
-  --app-table-header: rgba(18, 27, 43, 0.97);
-  --app-text: #e9f0f7;
-  --app-text-secondary: #b7c3d4;
-  --app-text-muted: #8fa0b5;
-  --app-border-soft: rgba(255, 255, 255, 0.06);
-  --app-border: rgba(255, 255, 255, 0.1);
-  --app-border-strong: rgba(255, 255, 255, 0.18);
-  --app-primary: #45e0cf;
-  --app-primary-text: #45e0cf;
-  --app-primary-hover: #70eadc;
-  --app-primary-soft: rgba(69, 224, 207, 0.13);
-  --app-on-primary: #070b14;
+    radial-gradient(circle at 85% -25%, rgba(57, 63, 77, 0.7), transparent 55%),
+    #1d1e22;
+  --app-surface: #272b35;
+  --app-surface-raised: #393f4d;
+  --app-surface-subtle: #303642;
+  --app-surface-hover: rgba(254, 218, 106, 0.06);
+  --app-surface-selected: rgba(254, 218, 106, 0.12);
+  --app-surface-disabled: rgba(212, 212, 220, 0.06);
+  --app-table-header: rgba(57, 63, 77, 0.97);
+  --app-text: #d4d4dc;
+  --app-text-secondary: #bfc0ca;
+  --app-text-muted: #b3b6c2;
+  --app-border-soft: rgba(212, 212, 220, 0.08);
+  --app-border: rgba(212, 212, 220, 0.14);
+  --app-border-strong: rgba(212, 212, 220, 0.3);
+  --app-primary: #feda6a;
+  --app-primary-text: #feda6a;
+  --app-primary-hover: #f3ca4f;
+  --app-primary-soft: rgba(254, 218, 106, 0.12);
+  --app-on-primary: #1d1e22;
   --app-on-danger: #ffffff;
   --app-on-success: #ffffff;
-  --app-focus-ring: rgba(69, 224, 207, 0.42);
-  --app-selection-text: #e9f0f7;
-  --app-selection-bg: rgba(69, 224, 207, 0.3);
-  --app-input-bg: rgba(255, 255, 255, 0.06);
+  --app-focus-ring: rgba(254, 218, 106, 0.48);
+  --app-selection-text: #d4d4dc;
+  --app-selection-bg: rgba(254, 218, 106, 0.25);
+  --app-input-bg: rgba(29, 30, 34, 0.75);
   --app-input-invalid-bg: rgba(255, 107, 140, 0.08);
-  --app-glass-bg: rgba(13, 19, 32, 0.72);
-  --app-glass-strong: rgba(13, 19, 32, 0.94);
-  --app-glass-border: rgba(255, 255, 255, 0.12);
-  --app-shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.24);
-  --app-shadow-panel: 0 18px 48px rgba(0, 0, 0, 0.18);
-  --app-shadow-dialog: 0 1.4rem 4rem rgba(0, 0, 0, 0.45);
-  --app-dialog-backdrop: rgba(0, 0, 0, 0.68);
+  --app-glass-bg: rgba(57, 63, 77, 0.72);
+  --app-glass-strong: rgba(39, 43, 53, 0.94);
+  --app-glass-border: rgba(212, 212, 220, 0.18);
+  --app-shadow-sm: 0 1px 0 rgba(29, 30, 34, 0.45);
+  --app-shadow-panel:
+    inset 0 1px 0 rgba(212, 212, 220, 0.06),
+    0 18px 48px rgba(29, 30, 34, 0.4);
+  --app-shadow-dialog: 0 1.4rem 4rem rgba(29, 30, 34, 0.65);
+  --app-dialog-backdrop: rgba(29, 30, 34, 0.8);
   --app-success-text: #7ee2a8;
   --app-success-bg: rgba(68, 190, 116, 0.12);
   --app-success-border: rgba(126, 226, 168, 0.34);
@@ -148,22 +143,23 @@
   --app-danger-border: rgba(255, 155, 176, 0.36);
   --app-danger-solid: #c54867;
   --app-danger-hover: #b83a58;
-  --app-neutral-text: #b7c3d4;
-  --app-neutral-bg: rgba(255, 255, 255, 0.06);
-  --app-neutral-border: rgba(255, 255, 255, 0.14);
+  --app-neutral-text: #b3b6c2;
+  --app-neutral-bg: rgba(212, 212, 220, 0.06);
+  --app-neutral-border: rgba(212, 212, 220, 0.2);
   --app-sidebar-background:
-    radial-gradient(circle at 50% -10%, rgba(69, 224, 207, 0.12), transparent 36%),
-    linear-gradient(180deg, #0d1320 0%, #070b14 100%);
-  --app-sidebar-text: #e9f0f7;
-  --app-sidebar-muted: #8fa0b5;
-  --app-sidebar-border: rgba(255, 255, 255, 0.1);
-  --app-sidebar-control: rgba(255, 255, 255, 0.04);
-  --app-sidebar-control-hover: rgba(69, 224, 207, 0.1);
-  --app-sidebar-active: rgba(69, 224, 207, 0.13);
-  --app-sidebar-active-border: rgba(69, 224, 207, 0.45);
-  --app-sidebar-accent: #45e0cf;
-  --app-brand-surface: rgba(255, 255, 255, 0.93);
-  --app-brand-shadow: 0 0.45rem 1.6rem rgba(0, 0, 0, 0.3);
+    linear-gradient(180deg, #272b35 0%, #1d1e22 100%);
+  --app-sidebar-text: #d4d4dc;
+  --app-sidebar-muted: #b3b6c2;
+  --app-sidebar-border: rgba(212, 212, 220, 0.14);
+  --app-sidebar-control: rgba(212, 212, 220, 0.04);
+  --app-sidebar-control-hover: rgba(254, 218, 106, 0.08);
+  --app-sidebar-active: rgba(254, 218, 106, 0.12);
+  --app-sidebar-active-text: var(--app-sidebar-text);
+  --app-sidebar-active-hover: var(--app-sidebar-control-hover);
+  --app-sidebar-active-border: rgba(254, 218, 106, 0.55);
+  --app-sidebar-accent: #feda6a;
+  --app-brand-surface: rgba(244, 244, 247, 0.96);
+  --app-brand-shadow: 0 0.45rem 1.6rem rgba(29, 30, 34, 0.5);
 }
 
 * {
