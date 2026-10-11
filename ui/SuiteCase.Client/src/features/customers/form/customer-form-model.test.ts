@@ -105,19 +105,20 @@ describe('customer form validation', () => {
     }), 'edit')).toEqual({});
   });
 
-  it.each(['АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ', 'абвгдежзийклмнопрстуфхцчшщъьюя', 'АѝЍ'])(
-    'accepts Bulgarian letters: %s',
+  it.each(['АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ', 'абвгдежзийклмнопрстуфхцчшщъьюя', 'АѝЍ', 'Ada', 'Anna-Maria', 'De la Cruz', 'José', 'Zoë', 'Łukasz', 'Müller', 'Пётр', 'Іван', 'Ивaн', 'Αννα', '李明', '\u{10400}\u{10428}'])(
+    'accepts Unicode letters in every primary name field: %s',
     (firstName) => {
-      expect(validateCustomerForm(createFormValues({ firstName }), 'create').firstName)
-        .toBeUndefined();
+      const values = createFormValues({ firstName, middleName: firstName, lastName: firstName });
+      expect(validateCustomerForm(values, 'create')).toEqual({});
+      expect(validateCustomerForm(values, 'edit')).toEqual({});
     },
   );
 
-  it.each(['Ada', 'Иван2', 'Ивaн', 'Анна--Мария', 'Анна  Мария', 'Анна- Мария', '-Анна', 'Анна-', 'Анна\tМария', 'Анна\nМария', 'Ива\u0482', 'Ива\u0483', 'Аы', 'АЫ', 'Аэ', 'АЭ', 'Аё', 'Аї', 'Ає', 'Аґ', 'Ађ', 'Аћ', 'Аљ', 'Ањ', 'АӢ', 'А\ua641', 'А\u{1e030}'])(
-    'rejects an invalid Bulgarian name: %s',
+  it.each(['Иван2', "O'Connor", 'Ivan.Petrov', 'Иван🙂', 'Анна--Мария', 'Анна  Мария', 'Анна- Мария', '-Анна', 'Анна-', 'Анна\tМария', 'Анна\nМария', 'Ива\u0482', 'Ива\u0483'])(
+    'rejects an invalid primary name: %s',
     (firstName) => {
       expect(validateCustomerForm(createFormValues({ firstName }), 'create').firstName)
-        .toContain('only Bulgarian letters');
+        .toContain('only letters');
     },
   );
 
@@ -129,14 +130,31 @@ describe('customer form validation', () => {
     },
   );
 
-  it('validates the alphabet of every optional name field', () => {
+  it.each([[1, false], [2, true], [100, true], [101, false]] as const)(
+    'preserves name length validation at %i characters',
+    (length, valid) => {
+      const name = 'A'.repeat(length);
+      const errors = validateCustomerForm(createFormValues({
+        firstName: name,
+        middleName: name,
+        lastName: name,
+        firstNameLatin: name,
+      }), 'edit');
+
+      for (const field of ['firstName', 'middleName', 'lastName', 'firstNameLatin'] as const) {
+        expect(errors[field] === undefined).toBe(valid);
+      }
+    },
+  );
+
+  it('validates every optional name field and preserves the ASCII Latin restriction', () => {
     expect(validateCustomerForm(createFormValues({
-      middleName: 'Latin',
+      middleName: 'Middle2',
       firstNameLatin: 'Петър',
       middleNameLatin: 'Петров',
       lastNameLatin: 'Петров',
     }), 'edit')).toEqual({
-      middleName: expect.stringContaining('only Bulgarian letters'),
+      middleName: expect.stringContaining('only letters'),
       firstNameLatin: expect.stringContaining('only English letters'),
       middleNameLatin: expect.stringContaining('only English letters'),
       lastNameLatin: expect.stringContaining('only English letters'),

@@ -61,6 +61,49 @@ public sealed class CustomerValidationEndpointTests(SqlServerFixture sqlServer)
     }
 
     [Fact]
+    public async Task CreateAndUpdateCustomer_AcceptUnicodeNamesWithInternalSpacesAndHyphens()
+    {
+        using var factory = CreateFactory();
+        using var client = CreateClient(factory);
+        (string FirstName, string? MiddleName, string LastName)[] names =
+        [
+            ("Anna-Maria", "José", "De la Cruz"),
+            ("Пётр", "Іван", "Малышев"),
+            ("Zoë", "Łukasz", "Müller"),
+            ("Αννα", null, "李明"),
+            ("\U00010400\U00010428", null, "Smith")
+        ];
+
+        foreach (var (firstName, middleName, lastName) in names)
+        {
+            var request = CreateRequest(
+                firstName: firstName, middleName: middleName, lastName: lastName,
+                nationalId: null, passportNumber: null);
+            var created = await CreateCustomerAsync(client, request);
+            Assert.Equal(firstName, created.FirstName);
+            Assert.Equal(middleName, created.MiddleName);
+            Assert.Equal(lastName, created.LastName);
+
+            var updateRequest = ToUpdateRequest(request) with
+            {
+                FirstName = lastName,
+                MiddleName = firstName,
+                LastName = firstName + "-Marie"
+            };
+            var response = await client.PutAsJsonAsync(
+                $"/api/customers/{created.Id}", updateRequest, TestCancellationToken);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var updated = await client.GetFromJsonAsync<CustomerDetailsResponse>(
+                $"/api/customers/{created.Id}", TestCancellationToken);
+            Assert.NotNull(updated);
+            Assert.Equal(updateRequest.FirstName, updated.FirstName);
+            Assert.Equal(updateRequest.MiddleName, updated.MiddleName);
+            Assert.Equal(updateRequest.LastName, updated.LastName);
+        }
+    }
+
+    [Fact]
     public async Task CreateCustomer_AcceptsDomesticAndInternationalPhoneFormats_WithoutCheckingCountryRules()
     {
         using var factory = CreateFactory();
@@ -186,17 +229,22 @@ public sealed class CustomerValidationEndpointTests(SqlServerFixture sqlServer)
     private static IEnumerable<(string Field, CreateCustomerRequest Request)> InvalidCreateRequests()
     {
         var request = CreateRequest();
-        yield return (nameof(request.FirstName), request with { FirstName = "Ivan" });
-        yield return (nameof(request.FirstName), request with { FirstName = "Пётр" });
-        yield return (nameof(request.LastName), request with { LastName = "Малышев" });
-        yield return (nameof(request.MiddleName), request with { MiddleName = "Іван" });
+        yield return (nameof(request.FirstName), request with { FirstName = null! });
+        yield return (nameof(request.FirstName), request with { FirstName = "" });
+        yield return (nameof(request.FirstName), request with { FirstName = " " });
+        yield return (nameof(request.LastName), request with { LastName = null! });
+        yield return (nameof(request.LastName), request with { LastName = "" });
+        yield return (nameof(request.LastName), request with { LastName = " " });
         yield return (nameof(request.FirstName), request with { FirstName = "Иван1" });
         yield return (nameof(request.FirstName), request with { FirstName = "Анна--Мария" });
         yield return (nameof(request.FirstName), request with { FirstName = "Анна  Мария" });
         yield return (nameof(request.FirstName), request with { FirstName = "И" });
         yield return (nameof(request.FirstName), request with { FirstName = " И " });
         yield return (nameof(request.FirstName), request with { FirstName = new string('И', 101) });
-        yield return (nameof(request.MiddleName), request with { MiddleName = "Georgiev" });
+        yield return (nameof(request.MiddleName), request with { MiddleName = "Georgiev2" });
+        yield return (nameof(request.FirstName), request with { FirstName = "-Anna" });
+        yield return (nameof(request.LastName), request with { LastName = "Cruz-" });
+        yield return (nameof(request.MiddleName), request with { MiddleName = "Anna- Maria" });
         yield return (nameof(request.LastName), request with { LastName = "Петров!" });
         foreach (var email in new[]
         {

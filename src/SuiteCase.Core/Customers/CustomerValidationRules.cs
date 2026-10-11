@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SuiteCase.Core.Customers;
@@ -6,11 +7,11 @@ public static class CustomerValidationRules
 {
     public const int MaximumNotesLength = 4000;
 
-    public static bool IsCyrillicName(string? value)
-        => IsName(value, IsBulgarianLetter);
+    public static bool IsCustomerName(string? value)
+        => IsName(value, Rune.IsLetter);
 
     public static bool IsLatinName(string? value)
-        => IsName(value, character => character is >= 'A' and <= 'Z' or >= 'a' and <= 'z');
+        => IsName(value, character => character.Value is >= 'A' and <= 'Z' or >= 'a' and <= 'z');
 
     public static bool IsPhoneNumberFormat(string? value)
     {
@@ -34,7 +35,7 @@ public static class CustomerValidationRules
     public static bool HasEmailDomainSuffix(string? value)
         => string.IsNullOrWhiteSpace(value) || Regex.IsMatch(value.Trim(), @"\A[^\s@]+@[^.\s@]+(?:\.[^.\s@]+)+\z");
 
-    private static bool IsName(string? value, Func<char, bool> isLetter)
+    private static bool IsName(string? value, Func<Rune, bool> isLetter)
     {
         if (string.IsNullOrWhiteSpace(value)) return true;
 
@@ -43,11 +44,11 @@ public static class CustomerValidationRules
 
         var requiresLetter = true;
         
-        foreach (var character in name)
+        foreach (var character in name.EnumerateRunes())
         {
             if (isLetter(character))
                 requiresLetter = false;
-            else if (!requiresLetter && character is ' ' or '-')
+            else if (!requiresLetter && character.Value is ' ' or '-')
                 requiresLetter = true;
             else
                 return false;
@@ -55,7 +56,4 @@ public static class CustomerValidationRules
 
         return !requiresLetter;
     }
-
-    private static bool IsBulgarianLetter(char character)
-        => character is >= 'А' and <= 'Ъ' or 'Ь' or 'Ю' or 'Я' or >= 'а' and <= 'ъ' or 'ь' or 'ю' or 'я' or 'Ѝ' or 'ѝ';
 }

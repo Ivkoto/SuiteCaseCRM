@@ -28,13 +28,13 @@ describe('CustomerForm validation feedback', () => {
 
     const firstName = screen.getByRole('textbox', { name: /First name/ });
     const lastName = screen.getByRole('textbox', { name: /Last name/ });
-    await user.type(firstName, 'Ivan');
+    await user.type(firstName, 'Ivan2');
     expect(firstName).toHaveAttribute('aria-invalid', 'false');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
     await user.tab();
     expect(firstName).toHaveAttribute('aria-invalid', 'true');
-    expect(firstName).toHaveAccessibleDescription(/only Bulgarian letters/);
+    expect(firstName).toHaveAccessibleDescription(/only letters/);
     expect(lastName).toHaveAttribute('aria-invalid', 'false');
 
     await user.clear(firstName);
@@ -51,7 +51,7 @@ describe('CustomerForm validation feedback', () => {
     const onSubmit = vi.fn();
     render(<CustomerForm
       mode="create"
-      initialValues={validFormValues({ firstName: 'Ivan', lastName: 'Petrov', nationalId: '9001010001' })}
+      initialValues={validFormValues({ firstName: 'Ivan2', lastName: 'Petrov2', nationalId: '9001010001' })}
       submitLabel="Create customer"
       isSubmitting={false}
       onCancel={vi.fn()}
@@ -126,20 +126,27 @@ describe('CustomerForm validation feedback', () => {
     expect(notes).toHaveAttribute('aria-invalid', 'false');
   });
 
-  it('submits valid optional and international fields', async () => {
+  it.each(['create', 'edit'] as const)('submits international names and optional fields in %s mode', async (mode) => {
     const user = userEvent.setup();
-    const values = validFormValues({ phoneNumber: '+442071838750', notes: 'Текст ✈️\nSecond line' });
+    const values = validFormValues({
+      firstName: 'Anna-Maria',
+      middleName: 'José',
+      lastName: 'De la Cruz',
+      phoneNumber: '+442071838750',
+      notes: 'Текст ✈️\nSecond line',
+    });
     const onSubmit = vi.fn();
+    const submitLabel = mode === 'create' ? 'Create customer' : 'Save changes';
     render(<CustomerForm
-      mode="create"
+      mode={mode}
       initialValues={values}
-      submitLabel="Create customer"
+      submitLabel={submitLabel}
       isSubmitting={false}
       onCancel={vi.fn()}
       onSubmit={onSubmit}
     />);
 
-    await user.click(screen.getByRole('button', { name: 'Create customer' }));
+    await user.click(screen.getByRole('button', { name: submitLabel }));
     expect(onSubmit).toHaveBeenCalledWith(values);
   });
 });

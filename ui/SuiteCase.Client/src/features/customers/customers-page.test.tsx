@@ -78,6 +78,21 @@ describe('CustomersPage', () => {
     expect(await screen.findByRole('button', {
       name: 'View details for Ада Лъвлейс',
     })).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
+      '',
+      'Name',
+      'Email',
+      'Phone',
+      'Birth date',
+      'Age',
+      'Passport expires',
+      'Trips',
+      'Last update',
+    ]);
+    expect(screen.getAllByRole('cell').slice(-2).map((cell) => cell.textContent)).toEqual([
+      '—',
+      '19 Jul 2026',
+    ]);
     expect(screen.getByRole('cell', { name: 'ada@example.test' })).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: 'Select Ада Лъвлейс' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Quick Actions', level: 3 })).toBeInTheDocument();
@@ -590,7 +605,7 @@ describe('CustomersPage', () => {
 
     expect(await screen.findByText('No customers yet')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Customer #41 deleted from active records.',
+      'Customer Ада Лъвлейс deleted from active records.',
     );
     expect(screen.queryByRole('dialog', { name: 'Ада Лъвлейс' })).not.toBeInTheDocument();
     const deleteCall = fetchMock.mock.calls.find(([, options]) => options?.method === 'DELETE');
@@ -676,7 +691,9 @@ describe('CustomersPage', () => {
     render(<CustomersPage />);
 
     await screen.findByRole('button', { name: 'View details for Grace Hopper' });
+    await user.click(screen.getByRole('checkbox', { name: 'Select Grace Hopper' }));
     await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('checkbox', { name: 'Select Ада Лъвлейс' }));
     await user.click(await screen.findByRole('button', {
       name: 'View details for Ада Лъвлейс',
     }));
@@ -707,6 +724,9 @@ describe('CustomersPage', () => {
     expect(await screen.findByRole('button', {
       name: 'View details for Grace Hopper',
     })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Select Grace Hopper' })).toBeChecked();
+    await user.click(screen.getByRole('checkbox', { name: 'Select Grace Hopper' }));
+    expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument();
   });
 
   it('closes the create dialog when the browser emits its Escape cancel event', async () => {

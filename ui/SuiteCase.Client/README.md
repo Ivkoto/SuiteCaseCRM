@@ -6,12 +6,12 @@ React and TypeScript desktop client for SuiteCase CRM. The implemented frontend 
 
 - Collapsible desktop navigation and a persisted light/dark theme.
 - Server-paged customer directory with name/phone search and retry states.
-- Per-page customer selection and clear selection. `Add to Group` remains disabled until Programs & Groups exists.
+- Customer selection persists across searches and pagination while the Customers page is open. Clear selection, leave the page, or reload the browser to reset it. `Add to Group` remains disabled until Programs & Groups exists.
 - Create customer, view details, full-replacement edit, and soft delete.
 - Client and server field validation with accessible error summaries and focus management.
 - Runtime validation of customer API responses and Problem Details error handling.
 - Bulgarian-market date presentation using the `Europe/Sofia` timezone for audit timestamps.
-- Dismissible success notices that automatically close after 30 seconds.
+- Dismissible success notices that automatically close after 15 seconds.
 
 Client-side routing defines `/`, `/customers`, `/programs`, `/bookings`, `/documents`, `/payments`, and `/administration`. Only Customers has implemented content. Dashboard and future section URLs render the shared layout with the section's header and an empty main area. Their sidebar items remain disabled and marked `Soon`. Unmatched URLs redirect to `/`.
 
@@ -38,12 +38,12 @@ src/
   index.css                      fonts, theme tokens, global styles
   layout/app-sidebar.tsx         navigation, branding, and navigation icons
   lib/http-client.ts             HTTP and Problem Details handling
+  components/notifications/      shared success notice, styles, and tests
   features/customers/
     api/                          contracts, API calls, response guards
     directory/                    directory toolbar, table, and pagination
     dialogs/                      create and details/edit/delete dialogs
     form/                         form UI, mapping, and validation
-    notifications/               success notice
     shared/                       formatting, errors, shared customer CSS
     customers-page.tsx           customer directory orchestration
   testing/setup.ts               Vitest/jsdom setup

@@ -1,4 +1,4 @@
-.customer-notice {
+.success-notice {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -12,7 +12,7 @@
   font-weight: 650;
 }
 
-.customer-notice-icon {
+.success-notice-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -25,12 +25,12 @@
   font-size: 0.68rem;
 }
 
-.customer-notice-message {
+.success-notice-message {
   min-width: 0;
   margin-right: auto;
 }
 
-.customer-notice-dismiss {
+.success-notice-dismiss {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -48,11 +48,11 @@
   cursor: pointer;
 }
 
-.customer-notice-dismiss:hover {
+.success-notice-dismiss:hover {
   background: var(--app-surface-hover);
 }
 
-.customer-notice-dismiss:focus-visible {
+.success-notice-dismiss:focus-visible {
   outline: 2px solid var(--app-focus-ring);
   outline-offset: 1px;
 }

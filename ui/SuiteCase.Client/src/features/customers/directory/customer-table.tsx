@@ -90,7 +90,7 @@ export function CustomerTable({
               <col className="customer-col-birth-date" />
               <col className="customer-col-age" />
               <col className="customer-col-passport-expiry" />
-              <col className="customer-col-passport-status" />
+              <col className="customer-col-trips" />
               <col className="customer-col-date-audit" />
             </colgroup>
             <thead>
@@ -110,8 +110,8 @@ export function CustomerTable({
                 <th scope="col">Phone</th>
                 <th scope="col">Birth date</th>
                 <th scope="col">Age</th>
-                <th scope="col">Passport expires</th>
-                <th scope="col">Passport status</th>
+                <th scope="col">Passp.exp.</th>
+                <th scope="col">Trips</th>
                 <th scope="col">Last update</th>
               </tr>
             </thead>
@@ -145,11 +145,6 @@ function CustomerRow({
   onOpen: (trigger: HTMLButtonElement) => void;
 }>) {
   const fullName = `${customer.firstName} ${customer.lastName}`;
-  const passportStatus = customer.passportExpiresOn === null
-    ? 'missing'
-    : customer.isPassportValid
-      ? 'valid'
-      : 'review';
 
   return (
     <tr className={isSelected ? 'customers-table-row--selected' : undefined}>
@@ -177,11 +172,7 @@ function CustomerRow({
       <td>{formatDate(customer.dateOfBirth)}</td>
       <td>{customer.age ?? <span className="customer-muted">—</span>}</td>
       <td>{formatDate(customer.passportExpiresOn)}</td>
-      <td>
-        <span className={`customer-status customer-status--${passportStatus}`}>
-          {passportStatus === 'valid' ? 'Valid' : passportStatus === 'review' ? 'Review' : 'Missing'}
-        </span>
-      </td>
+      <td><span className="customer-muted">—</span></td>
       <td>{formatAuditDate(customer.updatedAt ?? customer.createdAt)}</td>
     </tr>
   );

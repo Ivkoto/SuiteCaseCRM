@@ -262,7 +262,6 @@
 }
 
 .customer-selection-cell {
-  width: 2.125rem;
   text-align: center !important;
   vertical-align: middle !important;
   user-select: none;
@@ -278,19 +277,19 @@
 }
 
 .customer-col-selection {
-  width: 2.125rem;
+  width: 5%;
 }
 
 .customer-col-name {
-  width: 17%;
+  width: 20%;
 }
 
 .customer-col-email {
-  width: 21%;
+  width: 20%;
 }
 
 .customer-col-phone {
-  width: 12%;
+  width: 15%;
 }
 
 .customer-col-birth-date {
@@ -302,45 +301,15 @@
 }
 
 .customer-col-passport-expiry {
-  width: 12%;
+  width: 10%;
 }
 
-.customer-col-passport-status {
-  width: 12%;
+.customer-col-trips {
+  width: 5%;
 }
 
 .customer-col-date-audit {
-  width: 12%;
-}
-
-.customer-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 4.5rem;
-  padding: 0.12rem 0.48rem;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.customer-status--valid {
-  border-color: var(--app-success-border);
-  color: var(--app-success-text);
-  background: var(--app-success-bg);
-}
-
-.customer-status--review {
-  border-color: var(--app-warning-border);
-  color: var(--app-warning-text);
-  background: var(--app-warning-bg);
-}
-
-.customer-status--missing {
-  border-color: var(--app-neutral-border);
-  color: var(--app-neutral-text);
-  background: var(--app-neutral-bg);
+  width: 10%;
 }
 
 .customer-empty-icon {
