@@ -85,7 +85,7 @@ describe('CustomersPage', () => {
       'Phone',
       'Birth date',
       'Age',
-      'Passport expires',
+      'Passp.exp.',
       'Trips',
       'Last update',
     ]);
