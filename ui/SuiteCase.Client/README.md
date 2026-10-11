@@ -11,7 +11,7 @@ React and TypeScript desktop client for SuiteCase CRM. The implemented frontend 
 - Client and server field validation with accessible error summaries and focus management.
 - Runtime validation of customer API responses and Problem Details error handling.
 - Bulgarian-market date presentation using the `Europe/Sofia` timezone for audit timestamps.
-- Dismissible success notices that automatically close after 15 seconds.
+- Dismissible success notices that automatically close after 10 seconds.
 
 Client-side routing defines `/`, `/customers`, `/programs`, `/bookings`, `/documents`, `/payments`, and `/administration`. Only Customers has implemented content. Dashboard and future section URLs render the shared layout with the section's header and an empty main area. Their sidebar items remain disabled and marked `Soon`. Unmatched URLs redirect to `/`.
 

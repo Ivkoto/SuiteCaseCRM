@@ -1,3 +1,4 @@
+using System.Text;
 using SuiteCase.Core.Customers;
 using SuiteCase.Core.Entities;
 using SuiteCase.Server.Features.Customers.DTO;
@@ -30,9 +31,9 @@ public static class CustomerFactory
 
         Customer customer = new()
         {
-            FirstName = request.FirstName.Trim(),
-            MiddleName = NormalizeOptionalText(request.MiddleName),
-            LastName = request.LastName.Trim(),
+            FirstName = request.FirstName.Trim().Normalize(NormalizationForm.FormC),
+            MiddleName = NormalizeOptionalText(request.MiddleName)?.Normalize(NormalizationForm.FormC),
+            LastName = request.LastName.Trim().Normalize(NormalizationForm.FormC),
             DateOfBirth = dateOfBirth,
             PassportExpiresOn = request.PassportExpiresOn,
             Email = NormalizeOptionalText(request.Email),
@@ -67,9 +68,9 @@ public static class CustomerFactory
     {
         var dateOfBirth = CustomerDateOfBirthResolver.Resolve(normalizedNationalId, request.DateOfBirth);
 
-        customer.FirstName = request.FirstName.Trim();
-        customer.MiddleName = NormalizeOptionalText(request.MiddleName);
-        customer.LastName = request.LastName.Trim();
+        customer.FirstName = request.FirstName.Trim().Normalize(NormalizationForm.FormC);
+        customer.MiddleName = NormalizeOptionalText(request.MiddleName)?.Normalize(NormalizationForm.FormC);
+        customer.LastName = request.LastName.Trim().Normalize(NormalizationForm.FormC);
         customer.FirstNameLatin = NormalizeOptionalText(request.FirstNameLatin);
         customer.MiddleNameLatin = NormalizeOptionalText(request.MiddleNameLatin);
         customer.LastNameLatin = NormalizeOptionalText(request.LastNameLatin);

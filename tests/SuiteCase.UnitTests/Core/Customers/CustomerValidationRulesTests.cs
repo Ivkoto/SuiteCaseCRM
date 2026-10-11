@@ -42,6 +42,33 @@ public sealed class CustomerValidationRulesTests
         => Assert.Equal(expected, CustomerValidationRules.IsCustomerName(value));
 
     [Theory]
+    [InlineData("Jose\u0301")]
+    [InlineData("Mu\u0308ller")]
+    [InlineData("И\u0306ордан")]
+    [InlineData("  Jose\u0301-Mu\u0308ller  ")]
+    public void IsCustomerName_DecomposedLetters_ReturnsTrue(string value)
+        => Assert.True(CustomerValidationRules.IsCustomerName(value));
+
+    [Theory]
+    [InlineData(1, false)]
+    [InlineData(2, true)]
+    [InlineData(100, true)]
+    [InlineData(101, false)]
+    public void IsCustomerName_DecomposedLetters_ChecksNormalizedLength(int length, bool expected)
+    {
+        var name = string.Concat(Enumerable.Repeat("e\u0301", length));
+
+        Assert.Equal(expected, CustomerValidationRules.IsCustomerName(name));
+    }
+
+    [Fact]
+    public void IsCustomerName_InvalidUtf16_ReturnsFalse()
+    {
+        Assert.False(CustomerValidationRules.IsCustomerName("A\uD800"));
+        Assert.False(CustomerValidationRules.IsCustomerName("A\uDC00"));
+    }
+
+    [Theory]
     [InlineData(1, false)]
     [InlineData(2, true)]
     [InlineData(100, true)]
@@ -62,6 +89,7 @@ public sealed class CustomerValidationRulesTests
     [InlineData(" I ", false)]
     [InlineData("Иван", false)]
     [InlineData("José", false)]
+    [InlineData("Jose\u0301", false)]
     [InlineData("Ivаn", false)]
     [InlineData("Ivan2", false)]
     [InlineData("O'Neil", false)]

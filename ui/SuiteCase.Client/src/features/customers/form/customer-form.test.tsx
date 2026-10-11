@@ -14,6 +14,36 @@ function validFormValues(overrides: Partial<CustomerFormValues> = {}): CustomerF
 }
 
 describe('CustomerForm validation feedback', () => {
+  it('allows pasted decomposed names up to the normalized length limit', async () => {
+    const user = userEvent.setup();
+    const values = validFormValues();
+    const onSubmit = vi.fn();
+    render(<CustomerForm
+      mode="create"
+      initialValues={values}
+      submitLabel="Create customer"
+      isSubmitting={false}
+      onCancel={vi.fn()}
+      onSubmit={onSubmit}
+    />);
+
+    const firstName = screen.getByRole('textbox', { name: /First name/ });
+    const decomposedName = 'e\u0301'.repeat(100);
+    await user.clear(firstName);
+    await user.paste(decomposedName);
+    expect(firstName).toHaveValue(decomposedName);
+    await user.click(screen.getByRole('button', { name: 'Create customer' }));
+    expect(onSubmit).toHaveBeenCalledWith({ ...values, firstName: decomposedName });
+
+    onSubmit.mockClear();
+    await user.click(firstName);
+    await user.clear(firstName);
+    await user.paste('e\u0301'.repeat(101));
+    await user.click(screen.getByRole('button', { name: 'Create customer' }));
+    expect(firstName).toHaveAccessibleDescription('First name must contain between 2 and 100 characters.');
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it('validates only the blurred field and retains its error until corrected', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();

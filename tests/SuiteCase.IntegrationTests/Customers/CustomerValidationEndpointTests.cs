@@ -104,6 +104,54 @@ public sealed class CustomerValidationEndpointTests(SqlServerFixture sqlServer)
     }
 
     [Fact]
+    public async Task CreateAndUpdateCustomer_DecomposedNames_StoreNfcNames()
+    {
+        using var factory = CreateFactory();
+        using var client = CreateClient(factory);
+        var longDecomposedName = string.Concat(Enumerable.Repeat("e\u0301", 100));
+        (string FirstName, string MiddleName, string LastName,
+            string ExpectedFirstName, string ExpectedMiddleName, string ExpectedLastName)[] names =
+        [
+            (" Jose\u0301 ", " И\u0306ордан ", " Mu\u0308ller ", "José", "Йордан", "Müller"),
+            (longDecomposedName, longDecomposedName, longDecomposedName,
+                new string('é', 100), new string('é', 100), new string('é', 100))
+        ];
+
+        foreach (var name in names)
+        {
+            var request = CreateRequest(
+                firstName: name.FirstName, middleName: name.MiddleName, lastName: name.LastName,
+                nationalId: null, passportNumber: null);
+            var created = await CreateCustomerAsync(client, request);
+            Assert.Equal(name.ExpectedFirstName, created.FirstName);
+            Assert.Equal(name.ExpectedMiddleName, created.MiddleName);
+            Assert.Equal(name.ExpectedLastName, created.LastName);
+
+            using var scope = factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<SuiteCaseDbContext>();
+            var stored = await db.Customers.AsNoTracking().SingleAsync(c => c.Id == created.Id, TestCancellationToken);
+            Assert.Equal(name.ExpectedFirstName, stored.FirstName);
+            Assert.Equal(name.ExpectedMiddleName, stored.MiddleName);
+            Assert.Equal(name.ExpectedLastName, stored.LastName);
+
+            var updateRequest = ToUpdateRequest(request) with
+            {
+                FirstName = name.LastName,
+                MiddleName = name.FirstName,
+                LastName = name.MiddleName
+            };
+            var response = await client.PutAsJsonAsync(
+                $"/api/customers/{created.Id}", updateRequest, TestCancellationToken);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            stored = await db.Customers.AsNoTracking().SingleAsync(c => c.Id == created.Id, TestCancellationToken);
+            Assert.Equal(name.ExpectedLastName, stored.FirstName);
+            Assert.Equal(name.ExpectedFirstName, stored.MiddleName);
+            Assert.Equal(name.ExpectedMiddleName, stored.LastName);
+        }
+    }
+
+    [Fact]
     public async Task CreateCustomer_AcceptsDomesticAndInternationalPhoneFormats_WithoutCheckingCountryRules()
     {
         using var factory = CreateFactory();
@@ -241,6 +289,8 @@ public sealed class CustomerValidationEndpointTests(SqlServerFixture sqlServer)
         yield return (nameof(request.FirstName), request with { FirstName = "И" });
         yield return (nameof(request.FirstName), request with { FirstName = " И " });
         yield return (nameof(request.FirstName), request with { FirstName = new string('И', 101) });
+        yield return (nameof(request.FirstName), request with { FirstName = "e\u0301" });
+        yield return (nameof(request.LastName), request with { LastName = string.Concat(Enumerable.Repeat("e\u0301", 101)) });
         yield return (nameof(request.MiddleName), request with { MiddleName = "Georgiev2" });
         yield return (nameof(request.FirstName), request with { FirstName = "-Anna" });
         yield return (nameof(request.LastName), request with { LastName = "Cruz-" });
@@ -279,6 +329,7 @@ public sealed class CustomerValidationEndpointTests(SqlServerFixture sqlServer)
         var request = ToUpdateRequest(CreateRequest());
         yield return (nameof(request.FirstNameLatin), request with { FirstNameLatin = "Иван" });
         yield return (nameof(request.FirstNameLatin), request with { FirstNameLatin = "José" });
+        yield return (nameof(request.FirstNameLatin), request with { FirstNameLatin = "Jose\u0301" });
         yield return (nameof(request.FirstNameLatin), request with { FirstNameLatin = " I " });
         yield return (nameof(request.MiddleNameLatin), request with { MiddleNameLatin = "Ivan2" });
         yield return (nameof(request.LastNameLatin), request with { LastNameLatin = "O'Connor" });

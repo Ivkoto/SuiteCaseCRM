@@ -20,6 +20,25 @@ function createFormValues(
 }
 
 describe('customer form request mapping', () => {
+  it.each(['create', 'edit'] as const)('normalizes primary names to NFC in %s requests', (mode) => {
+    const values = createFormValues({
+      firstName: ' Jose\u0301 ',
+      middleName: ' И\u0306ордан ',
+      lastName: ' Mu\u0308ller ',
+      notes: 'Cafe\u0301',
+    });
+    const request = mode === 'create'
+      ? toCreateCustomerRequest(values)
+      : toUpdateCustomerRequest(values);
+
+    expect(request).toMatchObject({
+      firstName: 'José',
+      middleName: 'Йордан',
+      lastName: 'Müller',
+      notes: 'Cafe\u0301',
+    });
+  });
+
   it('normalizes create values and excludes server-managed Latin names', () => {
     const request = toCreateCustomerRequest(createFormValues({
       firstName: '  Ada  ',
@@ -94,6 +113,29 @@ describe('customer form request mapping', () => {
 });
 
 describe('customer form validation', () => {
+  it.each(['Jose\u0301', 'Mu\u0308ller', 'И\u0306ордан', ' Jose\u0301-Mu\u0308ller '])(
+    'accepts decomposed primary names in create and edit: %s',
+    (name) => {
+      const values = createFormValues({ firstName: name, middleName: name, lastName: name });
+      expect(validateCustomerForm(values, 'create')).toEqual({});
+      expect(validateCustomerForm(values, 'edit')).toEqual({});
+    },
+  );
+
+  it.each([[1, false], [2, true], [100, true], [101, false]] as const)(
+    'checks decomposed primary names after normalization to %i characters',
+    (length, valid) => {
+      const name = 'e\u0301'.repeat(length);
+      const errors = validateCustomerForm(createFormValues({
+        firstName: name, middleName: name, lastName: name,
+      }), 'create');
+
+      for (const field of ['firstName', 'middleName', 'lastName'] as const) {
+        expect(errors[field] === undefined).toBe(valid);
+      }
+    },
+  );
+
   it('accepts trimmed Bulgarian names and ASCII Latin names with internal separators', () => {
     expect(validateCustomerForm(createFormValues({
       firstName: '  Анна-Мария ',
@@ -122,7 +164,7 @@ describe('customer form validation', () => {
     },
   );
 
-  it.each(['José', 'Иван', "O'Connor", 'Anna2', 'Anna--Maria', 'Anna  Maria'])(
+  it.each(['José', 'Jose\u0301', 'Иван', "O'Connor", 'Anna2', 'Anna--Maria', 'Anna  Maria'])(
     'rejects an invalid ASCII Latin name: %s',
     (firstNameLatin) => {
       expect(validateCustomerForm(createFormValues({ firstNameLatin }), 'edit').firstNameLatin)

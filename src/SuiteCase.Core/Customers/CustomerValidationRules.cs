@@ -8,7 +8,18 @@ public static class CustomerValidationRules
     public const int MaximumNotesLength = 4000;
 
     public static bool IsCustomerName(string? value)
-        => IsName(value, Rune.IsLetter);
+    {
+        if (string.IsNullOrWhiteSpace(value)) return true;
+
+        try
+        {
+            return IsName(value.Normalize(NormalizationForm.FormC), Rune.IsLetter);
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+    }
 
     public static bool IsLatinName(string? value)
         => IsName(value, character => character.Value is >= 'A' and <= 'Z' or >= 'a' and <= 'z');

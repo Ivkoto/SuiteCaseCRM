@@ -158,8 +158,6 @@ export function CustomerForm({
           error={errors.firstName}
           idPrefix={idPrefix}
           required
-          minLength={2}
-          maxLength={100}
           autoComplete="given-name"
           autoFocus
           onChange={updateField}
@@ -170,8 +168,6 @@ export function CustomerForm({
           value={values.middleName}
           error={errors.middleName}
           idPrefix={idPrefix}
-          minLength={2}
-          maxLength={100}
           autoComplete="additional-name"
           onChange={updateField}
         />
@@ -182,8 +178,6 @@ export function CustomerForm({
           error={errors.lastName}
           idPrefix={idPrefix}
           required
-          minLength={2}
-          maxLength={100}
           autoComplete="family-name"
           onChange={updateField}
         />

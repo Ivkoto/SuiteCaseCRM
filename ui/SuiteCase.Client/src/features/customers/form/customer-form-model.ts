@@ -67,9 +67,9 @@ export function customerDetailsToForm(details: CustomerDetails): CustomerFormVal
 
 export function toCreateCustomerRequest(values: CustomerFormValues): CreateCustomerRequest {
   return {
-    firstName: values.firstName.trim(),
-    middleName: optionalTrim(values.middleName),
-    lastName: values.lastName.trim(),
+    firstName: values.firstName.trim().normalize('NFC'),
+    middleName: optionalTrim(values.middleName.normalize('NFC')),
+    lastName: values.lastName.trim().normalize('NFC'),
     nationalId: optionalUppercase(values.nationalId),
     dateOfBirth: optionalTrim(values.dateOfBirth),
     passportNumber: optionalUppercase(values.passportNumber),
@@ -112,9 +112,9 @@ export function validateCustomerForm(
   const unicodeLetter = /^\p{L}$/u;
   const latinLetter = /^[A-Za-z]$/;
 
-  validateName(values.firstName, 'First name', 'firstName', true, unicodeLetter, 'letters', errors);
-  validateName(values.middleName, 'Middle name', 'middleName', false, unicodeLetter, 'letters', errors);
-  validateName(values.lastName, 'Last name', 'lastName', true, unicodeLetter, 'letters', errors);
+  validateName(values.firstName.normalize('NFC'), 'First name', 'firstName', true, unicodeLetter, 'letters', errors);
+  validateName(values.middleName.normalize('NFC'), 'Middle name', 'middleName', false, unicodeLetter, 'letters', errors);
+  validateName(values.lastName.normalize('NFC'), 'Last name', 'lastName', true, unicodeLetter, 'letters', errors);
 
   if (mode === 'edit') {
     validateName(
