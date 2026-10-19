@@ -51,12 +51,14 @@ public static class CustomerValidationRules
         if (string.IsNullOrWhiteSpace(value)) return true;
 
         var name = value.Trim();
-        if (name.Length is < 2 or > 100) return false;
+        if (name.Length > 100) return false;
 
         var requiresLetter = true;
+        var scalarCount = 0;
         
         foreach (var character in name.EnumerateRunes())
         {
+            scalarCount++;
             if (isLetter(character))
                 requiresLetter = false;
             else if (!requiresLetter && character.Value is ' ' or '-')
@@ -65,6 +67,6 @@ public static class CustomerValidationRules
                 return false;
         }
 
-        return !requiresLetter;
+        return !requiresLetter && scalarCount >= 2;
     }
 }

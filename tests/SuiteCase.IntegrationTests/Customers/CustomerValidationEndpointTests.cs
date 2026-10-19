@@ -71,7 +71,8 @@ public sealed class CustomerValidationEndpointTests(SqlServerFixture sqlServer)
             ("Пётр", "Іван", "Малышев"),
             ("Zoë", "Łukasz", "Müller"),
             ("Αννα", null, "李明"),
-            ("\U00010400\U00010428", null, "Smith")
+            ("\U00010400\U00010428", null, "Smith"),
+            ("\U00010400A", "A\U00010428", "\U00010400\U00010428")
         ];
 
         foreach (var (firstName, middleName, lastName) in names)
@@ -288,6 +289,10 @@ public sealed class CustomerValidationEndpointTests(SqlServerFixture sqlServer)
         yield return (nameof(request.FirstName), request with { FirstName = "Анна  Мария" });
         yield return (nameof(request.FirstName), request with { FirstName = "И" });
         yield return (nameof(request.FirstName), request with { FirstName = " И " });
+        yield return (nameof(request.FirstName), request with { FirstName = "\U00010400" });
+        yield return (nameof(request.MiddleName), request with { MiddleName = "\U00010400" });
+        yield return (nameof(request.LastName), request with { LastName = "\U00010400" });
+        yield return (nameof(request.LastName), request with { LastName = string.Concat(Enumerable.Repeat("\U00010400", 51)) });
         yield return (nameof(request.FirstName), request with { FirstName = new string('И', 101) });
         yield return (nameof(request.FirstName), request with { FirstName = "e\u0301" });
         yield return (nameof(request.LastName), request with { LastName = string.Concat(Enumerable.Repeat("e\u0301", 101)) });

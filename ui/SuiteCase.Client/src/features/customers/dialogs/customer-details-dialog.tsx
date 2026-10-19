@@ -312,7 +312,7 @@ export function CustomerDetailsDialog({ customerId, onClose, onChanged, onDelete
                   aria-labelledby="delete-customer-title"
                 >
                   <div>
-                    <h3 id="delete-customer-title">Delete this customer?</h3>
+                    <h3 id="delete-customer-title">Delete {customerName}?</h3>
                     <p>
                       This removes the customer from active records. This action cannot be undone in the UI.
                     </p>

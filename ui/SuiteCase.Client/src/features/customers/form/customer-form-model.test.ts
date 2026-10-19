@@ -113,6 +113,21 @@ describe('customer form request mapping', () => {
 });
 
 describe('customer form validation', () => {
+  it.each([[1, false], [2, true], [50, true], [51, false]] as const)(
+    'checks a scalar minimum and UTF-16 maximum for %i supplementary letters',
+    (count, valid) => {
+      const name = ` ${'\u{10400}'.repeat(count)} `;
+      const values = createFormValues({ firstName: name, middleName: name, lastName: name });
+
+      for (const mode of ['create', 'edit'] as const) {
+        const errors = validateCustomerForm(values, mode);
+        for (const field of ['firstName', 'middleName', 'lastName'] as const) {
+          expect(errors[field] === undefined).toBe(valid);
+        }
+      }
+    },
+  );
+
   it.each(['Jose\u0301', 'Mu\u0308ller', 'И\u0306ордан', ' Jose\u0301-Mu\u0308ller '])(
     'accepts decomposed primary names in create and edit: %s',
     (name) => {

@@ -198,7 +198,13 @@ export function CustomersPage() {
 
   function clearCustomerSelection() {
     setSelectedCustomerIds([]);
-    selectAllCustomersRef.current?.focus();
+    const selectAll = selectAllCustomersRef.current;
+    if (selectAll !== null) {
+      selectAll.focus();
+      return;
+    }
+
+    addCustomerButtonRef.current?.focus();
   }
 
   function retryCustomerList() {

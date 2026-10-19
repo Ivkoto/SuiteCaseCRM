@@ -218,7 +218,7 @@ function validateName(
     if (required) {
       errors[field] = `${label} is required.`;
     }
-  } else if (trimmed.length < 2 || trimmed.length > 100) {
+  } else if (trimmed.length > 100 || Array.from(trimmed).length < 2) {
     errors[field] = `${label} must contain between 2 and 100 characters.`;
   } else if (!trimmed.split(/[ -]/).every((part) => part.length > 0
     && Array.from(part).every((letter) => pattern.test(letter)))) {

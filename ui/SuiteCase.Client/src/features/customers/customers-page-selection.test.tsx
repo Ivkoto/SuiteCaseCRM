@@ -83,6 +83,29 @@ describe('CustomersPage selection', () => {
     },
   );
 
+  it('moves focus to Add New Customer when clearing selections hidden by an empty search', async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(customerPage(CUSTOMERS)))
+      .mockResolvedValueOnce(jsonResponse(customerPage([])))
+      .mockResolvedValueOnce(jsonResponse(customerPage([])));
+
+    render(<CustomersPage />);
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Select Борис Иванов' }));
+    const searchInput = screen.getByRole('searchbox', { name: 'Search customers' });
+    await user.type(searchInput, 'Няма{Enter}');
+    await screen.findByText('No matching customers');
+    expect(screen.queryByRole('checkbox', {
+      name: 'Select all customers on this page',
+    })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Clear selection' }));
+
+    expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add New Customer' })).toHaveFocus();
+  });
+
   it('keeps hidden selections when toggling a page and clears them explicitly', async () => {
     const user = userEvent.setup();
     const firstPage = customerPage(CUSTOMERS.slice(0, 1), 1, 2, 15);

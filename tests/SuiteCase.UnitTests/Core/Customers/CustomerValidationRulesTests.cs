@@ -23,6 +23,8 @@ public sealed class CustomerValidationRulesTests
     [InlineData("Αννα", true)]
     [InlineData("李明", true)]
     [InlineData("\U00010400\U00010428", true)]
+    [InlineData(" \U00010400 ", false)]
+    [InlineData("\U00010400A", true)]
     [InlineData(" А ", false)]
     [InlineData("Ivan", true)]
     [InlineData("Ивaн", true)]
@@ -40,6 +42,18 @@ public sealed class CustomerValidationRulesTests
     [InlineData("Иван\nПетров", false)]
     public void IsCustomerName_NameFormat_ReturnsExpectedValidity(string value, bool expected)
         => Assert.Equal(expected, CustomerValidationRules.IsCustomerName(value));
+
+    [Theory]
+    [InlineData(1, false)]
+    [InlineData(2, true)]
+    [InlineData(50, true)]
+    [InlineData(51, false)]
+    public void IsCustomerName_SupplementaryLetters_EnforcesScalarMinimumAndUtf16Maximum(int count, bool expected)
+    {
+        var name = string.Concat(Enumerable.Repeat("\U00010400", count));
+
+        Assert.Equal(expected, CustomerValidationRules.IsCustomerName(name));
+    }
 
     [Theory]
     [InlineData("Jose\u0301")]
