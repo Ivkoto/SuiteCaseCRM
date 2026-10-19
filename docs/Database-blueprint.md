@@ -164,6 +164,8 @@ These are not stored on `Customer`.
 
 ### Customer data decisions
 
+- `FirstName` and `LastName` are required; `MiddleName` is optional. Primary names are trimmed and normalized to Unicode NFC before validation and storage. They accept Unicode letters with single internal spaces or hyphens. After normalization, the minimum is 2 Unicode scalars and the maximum is 100 UTF-16 code units to match `nvarchar(100)`. They are not restricted to Bulgarian names.
+- Optional Latin-name fields retain ASCII letters (`A-Z`, `a-z`) with the same length and separator rules. Create requests do not expose these fields; update requests do.
 - Supported residence countries are commonly recognized European countries; microstates are excluded for now. The maintained list is in [Countries.cs](../src/SuiteCase.Core/Countries/Countries.cs).
 - A supplied date of birth is authoritative because `NationalId` can contain an untyped foreign identifier. Only when it is missing may an EGN-compatible value supply the date after structural and checksum validation. Passing that validation does not prove the identifier's issuing scheme.
 - Age is calculated at response time. Passport validity requires expiry on or after six months from the reference date.

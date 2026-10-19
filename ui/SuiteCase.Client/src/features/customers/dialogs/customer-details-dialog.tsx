@@ -6,7 +6,7 @@ import { customerDetailsToForm, removeError, toUpdateCustomerRequest, type Custo
 import { formatAuditDate, formatDate, formatFullName } from '../shared/customer-format';
 import { isAbortError } from '../../../lib/http-client';
 import { describeCustomerLoadError, describeCustomerSubmissionError, } from '../shared/customer-error-messages';
-import { CustomerSuccessNotice } from '../notifications/customer-success-notice';
+import { SuccessNotice } from '../../../components/notifications/success-notice';
 import './customer-dialog.css';
 
 type CustomerDetailsState =
@@ -18,7 +18,7 @@ type CustomerDetailsDialogProps = Readonly<{
   customerId: number;
   onClose: () => void;
   onChanged: (customer: CustomerDetails) => void;
-  onDeleted: (customerId: number) => void;
+  onDeleted: (customerId: number, customerName: string) => void;
 }>;
 
 export function CustomerDetailsDialog({ customerId, onClose, onChanged, onDeleted, }: CustomerDetailsDialogProps) {
@@ -144,7 +144,7 @@ export function CustomerDetailsDialog({ customerId, onClose, onChanged, onDelete
 
     try {
       await deleteCustomer(customerId);
-      onDeleted(customerId);
+      onDeleted(customerId, customerName);
     } catch (error) {
       const described = describeCustomerSubmissionError(error);
       setFormError(described.message ?? 'The customer could not be deleted. Try again.');
@@ -292,7 +292,7 @@ export function CustomerDetailsDialog({ customerId, onClose, onChanged, onDelete
               </div>
 
               {statusMessage !== null ? (
-                <CustomerSuccessNotice
+                <SuccessNotice
                   message={statusMessage}
                   onDismiss={dismissStatusMessage}
                 />
@@ -312,7 +312,7 @@ export function CustomerDetailsDialog({ customerId, onClose, onChanged, onDelete
                   aria-labelledby="delete-customer-title"
                 >
                   <div>
-                    <h3 id="delete-customer-title">Delete this customer?</h3>
+                    <h3 id="delete-customer-title">Delete {customerName}?</h3>
                     <p>
                       This removes the customer from active records. This action cannot be undone in the UI.
                     </p>

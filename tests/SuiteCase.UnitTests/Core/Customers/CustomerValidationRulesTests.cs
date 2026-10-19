@@ -12,36 +12,88 @@ public sealed class CustomerValidationRulesTests
     [InlineData("АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ", true)]
     [InlineData("абвгдежзийклмнопрстуфхцчшщъьюя", true)]
     [InlineData("АѝЍ", true)]
-    [InlineData("Аы", false)]
-    [InlineData("АЫ", false)]
-    [InlineData("Аэ", false)]
-    [InlineData("АЭ", false)]
-    [InlineData("Аё", false)]
-    [InlineData("Аї", false)]
-    [InlineData("Ає", false)]
-    [InlineData("Аґ", false)]
-    [InlineData("Ађ", false)]
-    [InlineData("Аћ", false)]
-    [InlineData("Аљ", false)]
-    [InlineData("Ањ", false)]
-    [InlineData("АӢ", false)]
-    [InlineData("А\uA641", false)]
-    [InlineData("А\U0001E030", false)]
+    [InlineData("Пётр", true)]
+    [InlineData("Іван", true)]
+    [InlineData("Anna-Maria", true)]
+    [InlineData("De la Cruz", true)]
+    [InlineData("José", true)]
+    [InlineData("Zoë", true)]
+    [InlineData("Łukasz", true)]
+    [InlineData("Müller", true)]
+    [InlineData("Αννα", true)]
+    [InlineData("李明", true)]
+    [InlineData("\U00010400\U00010428", true)]
+    [InlineData(" \U00010400 ", false)]
+    [InlineData("\U00010400A", true)]
     [InlineData(" А ", false)]
-    [InlineData("Ivan", false)]
-    [InlineData("Ивaн", false)]
+    [InlineData("Ivan", true)]
+    [InlineData("Ивaн", true)]
     [InlineData("Иван2", false)]
     [InlineData("Иван\u0482", false)]
     [InlineData("Иван\u0483", false)]
     [InlineData("Иван🙂", false)]
+    [InlineData("O'Neil", false)]
+    [InlineData("Ivan.Petrov", false)]
     [InlineData("Анна--Мария", false)]
     [InlineData("Анна  Мария", false)]
     [InlineData("Анна- Мария", false)]
     [InlineData("-Иван", false)]
     [InlineData("Иван-", false)]
     [InlineData("Иван\nПетров", false)]
-    public void IsCyrillicName_NameFormat_ReturnsExpectedValidity(string value, bool expected)
-        => Assert.Equal(expected, CustomerValidationRules.IsCyrillicName(value));
+    public void IsCustomerName_NameFormat_ReturnsExpectedValidity(string value, bool expected)
+        => Assert.Equal(expected, CustomerValidationRules.IsCustomerName(value));
+
+    [Theory]
+    [InlineData(1, false)]
+    [InlineData(2, true)]
+    [InlineData(50, true)]
+    [InlineData(51, false)]
+    public void IsCustomerName_SupplementaryLetters_EnforcesScalarMinimumAndUtf16Maximum(int count, bool expected)
+    {
+        var name = string.Concat(Enumerable.Repeat("\U00010400", count));
+
+        Assert.Equal(expected, CustomerValidationRules.IsCustomerName(name));
+    }
+
+    [Theory]
+    [InlineData("Jose\u0301")]
+    [InlineData("Mu\u0308ller")]
+    [InlineData("И\u0306ордан")]
+    [InlineData("  Jose\u0301-Mu\u0308ller  ")]
+    public void IsCustomerName_DecomposedLetters_ReturnsTrue(string value)
+        => Assert.True(CustomerValidationRules.IsCustomerName(value));
+
+    [Theory]
+    [InlineData(1, false)]
+    [InlineData(2, true)]
+    [InlineData(100, true)]
+    [InlineData(101, false)]
+    public void IsCustomerName_DecomposedLetters_ChecksNormalizedLength(int length, bool expected)
+    {
+        var name = string.Concat(Enumerable.Repeat("e\u0301", length));
+
+        Assert.Equal(expected, CustomerValidationRules.IsCustomerName(name));
+    }
+
+    [Fact]
+    public void IsCustomerName_InvalidUtf16_ReturnsFalse()
+    {
+        Assert.False(CustomerValidationRules.IsCustomerName("A\uD800"));
+        Assert.False(CustomerValidationRules.IsCustomerName("A\uDC00"));
+    }
+
+    [Theory]
+    [InlineData(1, false)]
+    [InlineData(2, true)]
+    [InlineData(100, true)]
+    [InlineData(101, false)]
+    public void NameRules_NameLength_ReturnExpectedValidity(int length, bool expected)
+    {
+        var name = new string('A', length);
+
+        Assert.Equal(expected, CustomerValidationRules.IsCustomerName(name));
+        Assert.Equal(expected, CustomerValidationRules.IsLatinName(name));
+    }
 
     [Theory]
     [InlineData("Ivan", true)]
@@ -51,6 +103,7 @@ public sealed class CustomerValidationRulesTests
     [InlineData(" I ", false)]
     [InlineData("Иван", false)]
     [InlineData("José", false)]
+    [InlineData("Jose\u0301", false)]
     [InlineData("Ivаn", false)]
     [InlineData("Ivan2", false)]
     [InlineData("O'Neil", false)]
@@ -106,7 +159,7 @@ public sealed class CustomerValidationRulesTests
     [InlineData("   ")]
     public void ValidationRules_OptionalValueIsMissing_ReturnTrue(string? value)
     {
-        Assert.True(CustomerValidationRules.IsCyrillicName(value));
+        Assert.True(CustomerValidationRules.IsCustomerName(value));
         Assert.True(CustomerValidationRules.IsLatinName(value));
         Assert.True(CustomerValidationRules.IsPhoneNumberFormat(value));
         Assert.True(CustomerValidationRules.IsEgn(value));

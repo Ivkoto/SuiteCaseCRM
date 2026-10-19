@@ -9,7 +9,7 @@ import {
 } from './directory/customer-table';
 import { CreateCustomerDialog } from './dialogs/create-customer-dialog';
 import { CustomerDetailsDialog } from './dialogs/customer-details-dialog';
-import { CustomerSuccessNotice } from './notifications/customer-success-notice';
+import { SuccessNotice } from '../../components/notifications/success-notice';
 import { isAbortError } from '../../lib/http-client';
 import {
   describeCustomerListError,
@@ -90,7 +90,6 @@ export function CustomersPage() {
 
     setSearchError(null);
     setNotice(null);
-    setSelectedCustomerIds([]);
     setPage(1);
 
     if (nextSearch === search) {
@@ -110,7 +109,6 @@ export function CustomersPage() {
 
     if (isActiveSearchCleared) {
       setNotice(null);
-      setSelectedCustomerIds([]);
       setPage(1);
       setListState({ status: 'loading' });
       setSearch('');
@@ -123,7 +121,6 @@ export function CustomersPage() {
     setNotice(null);
 
     if (search.length > 0) {
-      setSelectedCustomerIds([]);
       setPage(1);
       setListState({ status: 'loading' });
       setSearch('');
@@ -135,7 +132,6 @@ export function CustomersPage() {
     setSearchDraft('');
     setSearch('');
     setPage(1);
-    setSelectedCustomerIds([]);
     setListState({ status: 'loading' });
     setRefreshKey((current) => current + 1);
     setSelectedCustomerId(customer.id);
@@ -148,11 +144,11 @@ export function CustomersPage() {
     setNotice(`Customer ${formatFullName(customer)} updated.`);
   }
 
-  function handleDeleted(customerId: number) {
+  function handleDeleted(customerId: number, customerName: string) {
     focusAfterDialogRef.current = addCustomerButtonRef.current;
     setSelectedCustomerId(null);
     setSelectedCustomerIds((current) => current.filter((id) => id !== customerId));
-    setNotice(`Customer #${customerId} deleted from active records.`);
+    setNotice(`Customer ${customerName} deleted from active records.`);
     setListState({ status: 'loading' });
 
     if (
@@ -202,7 +198,13 @@ export function CustomersPage() {
 
   function clearCustomerSelection() {
     setSelectedCustomerIds([]);
-    selectAllCustomersRef.current?.focus();
+    const selectAll = selectAllCustomersRef.current;
+    if (selectAll !== null) {
+      selectAll.focus();
+      return;
+    }
+
+    addCustomerButtonRef.current?.focus();
   }
 
   function retryCustomerList() {
@@ -223,13 +225,11 @@ export function CustomersPage() {
 
   function goToPreviousPage() {
     setListState({ status: 'loading' });
-    setSelectedCustomerIds([]);
     setPage((current) => Math.max(1, current - 1));
   }
 
   function goToNextPage() {
     setListState({ status: 'loading' });
-    setSelectedCustomerIds([]);
     setPage((current) => current + 1);
   }
 
@@ -249,7 +249,7 @@ export function CustomersPage() {
       />
 
       {notice !== null ? (
-        <CustomerSuccessNotice message={notice} onDismiss={dismissNotice} />
+        <SuccessNotice message={notice} onDismiss={dismissNotice} />
       ) : null}
 
       <CustomerTable

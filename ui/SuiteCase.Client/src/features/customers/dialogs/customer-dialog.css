@@ -150,7 +150,13 @@
   background: var(--app-danger-bg);
 }
 
+.customer-delete-confirmation > div:first-child {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .customer-delete-confirmation h3 {
+  overflow-wrap: anywhere;
   font-size: 0.83rem;
 }
 

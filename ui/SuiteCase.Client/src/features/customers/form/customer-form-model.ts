@@ -67,9 +67,9 @@ export function customerDetailsToForm(details: CustomerDetails): CustomerFormVal
 
 export function toCreateCustomerRequest(values: CustomerFormValues): CreateCustomerRequest {
   return {
-    firstName: values.firstName.trim(),
-    middleName: optionalTrim(values.middleName),
-    lastName: values.lastName.trim(),
+    firstName: values.firstName.trim().normalize('NFC'),
+    middleName: optionalTrim(values.middleName.normalize('NFC')),
+    lastName: values.lastName.trim().normalize('NFC'),
     nationalId: optionalUppercase(values.nationalId),
     dateOfBirth: optionalTrim(values.dateOfBirth),
     passportNumber: optionalUppercase(values.passportNumber),
@@ -109,12 +109,12 @@ export function validateCustomerForm(
 ): CustomerFormErrors {
   const errors: CustomerFormErrors = {};
 
-  const bulgarianLetter = /^[А-ЪЬЮЯа-ъьюяЍѝ]$/;
+  const unicodeLetter = /^\p{L}$/u;
   const latinLetter = /^[A-Za-z]$/;
 
-  validateName(values.firstName, 'First name', 'firstName', true, bulgarianLetter, 'Bulgarian', errors);
-  validateName(values.middleName, 'Middle name', 'middleName', false, bulgarianLetter, 'Bulgarian', errors);
-  validateName(values.lastName, 'Last name', 'lastName', true, bulgarianLetter, 'Bulgarian', errors);
+  validateName(values.firstName.normalize('NFC'), 'First name', 'firstName', true, unicodeLetter, 'letters', errors);
+  validateName(values.middleName.normalize('NFC'), 'Middle name', 'middleName', false, unicodeLetter, 'letters', errors);
+  validateName(values.lastName.normalize('NFC'), 'Last name', 'lastName', true, unicodeLetter, 'letters', errors);
 
   if (mode === 'edit') {
     validateName(
@@ -123,7 +123,7 @@ export function validateCustomerForm(
       'firstNameLatin',
       false,
       latinLetter,
-      'English',
+      'English letters',
       errors,
     );
     validateName(
@@ -132,7 +132,7 @@ export function validateCustomerForm(
       'middleNameLatin',
       false,
       latinLetter,
-      'English',
+      'English letters',
       errors,
     );
     validateName(
@@ -141,7 +141,7 @@ export function validateCustomerForm(
       'lastNameLatin',
       false,
       latinLetter,
-      'English',
+      'English letters',
       errors,
     );
   }
@@ -210,7 +210,7 @@ function validateName(
   field: CustomerFormField,
   required: boolean,
   pattern: RegExp,
-  alphabet: 'Bulgarian' | 'English',
+  letters: 'letters' | 'English letters',
   errors: CustomerFormErrors,
 ) {
   const trimmed = value.trim();
@@ -218,11 +218,11 @@ function validateName(
     if (required) {
       errors[field] = `${label} is required.`;
     }
-  } else if (trimmed.length < 2 || trimmed.length > 100) {
+  } else if (trimmed.length > 100 || Array.from(trimmed).length < 2) {
     errors[field] = `${label} must contain between 2 and 100 characters.`;
   } else if (!trimmed.split(/[ -]/).every((part) => part.length > 0
     && Array.from(part).every((letter) => pattern.test(letter)))) {
-    errors[field] = `${label} must contain only ${alphabet} letters. Single spaces or hyphens between name parts are allowed.`;
+    errors[field] = `${label} must contain only ${letters}. Single spaces or hyphens between name parts are allowed.`;
   }
 }
 

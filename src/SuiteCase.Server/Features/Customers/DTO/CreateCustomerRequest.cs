@@ -5,13 +5,13 @@ using SuiteCase.Server.Features.Customers.Validation;
 namespace SuiteCase.Server.Features.Customers.DTO;
 
 public sealed record CreateCustomerRequest(
-    [Required, MaxLength(100), MinLength(2), CyrillicName]
+    [Required, CustomerName]
     string FirstName,
 
-    [MaxLength(100), MinLength(2), CyrillicName]
+    [CustomerName]
     string? MiddleName,
 
-    [Required, MaxLength(100), MinLength(2), CyrillicName]
+    [Required, CustomerName]
     string LastName,
 
     [Egn]

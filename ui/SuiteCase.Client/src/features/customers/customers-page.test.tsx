@@ -78,6 +78,20 @@ describe('CustomersPage', () => {
     expect(await screen.findByRole('button', {
       name: 'View details for Ада Лъвлейс',
     })).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
+      '',
+      'Name',
+      'Email',
+      'Phone',
+      'Birth date',
+      'Age',
+      'Passport expires',
+      'Last update',
+    ]);
+    expect(screen.getAllByRole('cell').slice(-2).map((cell) => cell.textContent)).toEqual([
+      '01 Jan 2030',
+      '19 Jul 2026',
+    ]);
     expect(screen.getByRole('cell', { name: 'ada@example.test' })).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: 'Select Ада Лъвлейс' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Quick Actions', level: 3 })).toBeInTheDocument();
@@ -484,7 +498,7 @@ describe('CustomersPage', () => {
     const dialog = await screen.findByRole('dialog', { name: 'Ада Лъвлейс' });
     await user.click(within(dialog).getByRole('button', { name: 'Delete customer' }));
     const deleteHeading = within(dialog).getByRole('heading', {
-      name: 'Delete this customer?',
+      name: 'Delete Ада Лъвлейс?',
     });
     const confirmation = deleteHeading.closest('section');
     if (confirmation === null) {
@@ -566,35 +580,41 @@ describe('CustomersPage', () => {
 
     await user.click(within(detailsDialog).getByRole('button', { name: 'Delete customer' }));
     const deleteHeading = within(detailsDialog).getByRole('heading', {
-      name: 'Delete this customer?',
+      name: 'Delete Ада Лъвлейс?',
     });
     const deleteConfirmation = deleteHeading.closest('section');
     if (deleteConfirmation === null) {
       throw new Error('Delete confirmation section was not rendered.');
     }
+    expect(deleteHeading).toBeVisible();
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'DELETE')).toHaveLength(0);
     expect(deleteConfirmation).toHaveFocus();
     await user.click(within(deleteConfirmation).getByRole('button', { name: 'Cancel' }));
     expect(within(detailsDialog).getByRole('button', { name: 'Delete customer' })).toHaveFocus();
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'DELETE')).toHaveLength(0);
 
     await user.click(within(detailsDialog).getByRole('button', { name: 'Delete customer' }));
     const confirmedDeleteHeading = within(detailsDialog).getByRole('heading', {
-      name: 'Delete this customer?',
+      name: 'Delete Ада Лъвлейс?',
     });
     const confirmedDeleteSection = confirmedDeleteHeading.closest('section');
     if (confirmedDeleteSection === null) {
       throw new Error('Delete confirmation section was not rendered.');
     }
+    expect(confirmedDeleteHeading).toBeVisible();
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'DELETE')).toHaveLength(0);
     await user.click(within(confirmedDeleteSection).getByRole('button', {
       name: 'Delete customer',
     }));
 
     expect(await screen.findByText('No customers yet')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Customer #41 deleted from active records.',
+      'Customer Ада Лъвлейс deleted from active records.',
     );
     expect(screen.queryByRole('dialog', { name: 'Ада Лъвлейс' })).not.toBeInTheDocument();
     const deleteCall = fetchMock.mock.calls.find(([, options]) => options?.method === 'DELETE');
     expect(deleteCall?.[0]).toBe('/api/customers/41');
+    expect(fetchMock.mock.calls.filter(([, options]) => options?.method === 'DELETE')).toHaveLength(1);
     expect(fetchMock.mock.calls[5]?.[0]).toBe('/api/customers?page=1&pageSize=13');
   });
 
@@ -624,7 +644,7 @@ describe('CustomersPage', () => {
     await user.click(deleteButton);
 
     const deleteConfirmationHeading = within(detailsDialog).getByRole('heading', {
-      name: 'Delete this customer?',
+      name: 'Delete Ада Лъвлейс?',
     });
     const deleteConfirmation = deleteConfirmationHeading.closest('section');
     if (deleteConfirmation === null) {
@@ -676,7 +696,9 @@ describe('CustomersPage', () => {
     render(<CustomersPage />);
 
     await screen.findByRole('button', { name: 'View details for Grace Hopper' });
+    await user.click(screen.getByRole('checkbox', { name: 'Select Grace Hopper' }));
     await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('checkbox', { name: 'Select Ада Лъвлейс' }));
     await user.click(await screen.findByRole('button', {
       name: 'View details for Ада Лъвлейс',
     }));
@@ -684,7 +706,7 @@ describe('CustomersPage', () => {
     const detailsDialog = await screen.findByRole('dialog', { name: 'Ада Лъвлейс' });
     await user.click(within(detailsDialog).getByRole('button', { name: 'Delete customer' }));
     const deleteConfirmationHeading = within(detailsDialog).getByRole('heading', {
-      name: 'Delete this customer?',
+      name: 'Delete Ада Лъвлейс?',
     });
     const deleteConfirmation = deleteConfirmationHeading.closest('section');
     if (deleteConfirmation === null) {
@@ -707,6 +729,9 @@ describe('CustomersPage', () => {
     expect(await screen.findByRole('button', {
       name: 'View details for Grace Hopper',
     })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Select Grace Hopper' })).toBeChecked();
+    await user.click(screen.getByRole('checkbox', { name: 'Select Grace Hopper' }));
+    expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument();
   });
 
   it('closes the create dialog when the browser emits its Escape cancel event', async () => {
